@@ -5,6 +5,7 @@ import { getRandomWordWithHints } from "../utils/utils";
 const randomWordWithHint = getRandomWordWithHints();
 
 const initialState = {
+    category: null,
     word: randomWordWithHint.word,
     hint: randomWordWithHint.hint,
     correctGuesses: [],
@@ -47,10 +48,16 @@ const hangmanSlice = createSlice({
         toggleHint: (state) => {
             state.showHint = !state.showHint;
         },
+        selectCategory: (state, action) => {
+            state.category = action.payload;
+            const randomWordWithHint = getRandomWordWithHints(state.category);
+            state.word = randomWordWithHint.word;
+            state.hint = randomWordWithHint.hint;
+        },
     },
 });
 
-export const { makeGuess, restartGame, toggleHelp, gameWon, gameLost, toggleHint } = hangmanSlice.actions;
+export const { makeGuess, restartGame, toggleHelp, gameWon, gameLost, toggleHint, selectCategory } = hangmanSlice.actions;
 
 const store = configureStore({
     reducer: {

@@ -1,17 +1,18 @@
 // App.js
 import React, { useEffect} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { makeGuess, restartGame, toggleHelp, gameWon, gameLost } from './store/store';
+import { makeGuess, restartGame, toggleHelp, gameWon, gameLost, selectCategory } from './store/store';
 import HangmanFigure from './components/HangmanFigure';
 import WordToGuess from './components/WordToGuess';
 import Keyboard from './components/Keyboard';
 import Scoreboard from './components/Scoreboard';
 import Help from './components/Help';
+import CategorySelection from './components/CategorySelection';
 import './App.css';
 
 function App() {
   const dispatch = useDispatch();
-  const { word, correctGuesses, incorrectGuesses, status, showHelp, showHint, hint } = useSelector((state) => state.hangman);
+  const { category, word, correctGuesses, incorrectGuesses, status, showHelp, showHint, hint } = useSelector((state) => state.hangman);
 
   const handleGuess = (letter) => { 
     if (status === "Playing") {
@@ -37,6 +38,9 @@ function App() {
     }
   }, [correctGuesses, incorrectGuesses, word, dispatch]);
 
+  if (category === null) {
+    return <CategorySelection onSelectCategory={(selectedCategory) => dispatch(selectCategory(selectedCategory))} />;
+  }
 
 
   return (
