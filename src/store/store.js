@@ -27,8 +27,9 @@ const hangmanSlice = createSlice({
                 state.incorrectGuesses.push(letter);
             }
         },
-        restartGame: (state) => {
-            const newRandomWordWithHint = getRandomWordWithHints();
+        restartGame: (state, action) => {
+            state.category = action.payload;
+            const newRandomWordWithHint = getRandomWordWithHints(state.category);
             state.word = newRandomWordWithHint.word;
             state.hint = newRandomWordWithHint.hint;
             state.correctGuesses = [];
@@ -53,6 +54,10 @@ const hangmanSlice = createSlice({
             const randomWordWithHint = getRandomWordWithHints(state.category);
             state.word = randomWordWithHint.word;
             state.hint = randomWordWithHint.hint;
+            state.correctGuesses = [];
+            state.incorrectGuesses = [];
+            state.status = "Playing";
+            state.showHint = false;
         },
     },
 });
