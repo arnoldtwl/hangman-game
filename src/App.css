@@ -18,3 +18,45 @@ button:focus {
     stroke-width: 4px;
     stroke-linecap: round;
 }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.figure-part {
+    animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+
+
+
+
+
+/* Mobile view */
+@media only screen and (max-width: 600px) {
+    .hangman-container {
+        font-size: 14px;
+    }
+}
+
+/* Tablet view */
+@media only screen and (min-width: 601px) and (max-width: 1024px) {
+    .hangman-container {
+        font-size: 18px;
+        
+    }
+}
+
+/* Desktop view */
+@media only screen and (min-width: 1025px) {
+    .hangman-container {
+        font-size: 22px;
+        
+    }
+}

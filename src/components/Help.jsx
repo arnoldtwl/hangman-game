@@ -1,7 +1,7 @@
-// Help.jsx
+// Help component 
 import React from 'react';
 
-function Help({ onClose, onHelp }) {
+function Help({ onClose }) {
   return (
     <div className="help bg-white p-6 rounded shadow-lg mt-6">
         <h3 className="text-2xl mb-4">How to play Hangman</h3>

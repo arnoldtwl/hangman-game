@@ -1,4 +1,4 @@
-// Header.jsx 
+// Header component is used in both CategorySelection and Game components. It is a simple component that renders the title of the game and links to the home page.
 import React from 'react';
 import { Link } from 'react-router-dom';
 
