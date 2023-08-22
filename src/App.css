@@ -11,7 +11,6 @@ button:focus {
 }
 
 
-
 .figure-container {
     fill: transparent;
     stroke: #fff;
@@ -32,10 +31,6 @@ button:focus {
 .figure-part {
     animation: fadeIn 0.5s ease-in-out forwards;
 }
-
-
-
-
 
 
 /* Mobile view */
