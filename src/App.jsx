@@ -2,17 +2,15 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Game from './components/Game';
-import CategorySelection from './components/CategorySelection';
-
-import './App.css';
+import HelpPage from './components/HelpPage';
 
 function App() {
   
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<CategorySelection />} />
-        <Route path="/game" element={<Game />} />
+        <Route path="/" element={<Game />} />
+        <Route path="/help" element={<HelpPage />} />
       </Routes>
     </Router>
   );

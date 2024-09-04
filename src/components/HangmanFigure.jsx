@@ -1,6 +1,11 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 
-function HangmanFigure({ incorrectGuesses }) {
+function HangmanFigure() {
+  const { incorrectGuesses, status } = useSelector((state) => state.hangman);
+  const maxIncorrectGuesses = 6;
+  const guessesToShow = status === "Not Started" ? maxIncorrectGuesses : incorrectGuesses.length;
+
   return (
     <div className="flex justify-center mt-4">
       <svg height="250" width="200" className="figure-container">
@@ -11,15 +16,15 @@ function HangmanFigure({ incorrectGuesses }) {
         <line x1="20" y1="230" x2="100" y2="230" /> {/* Horizontal line at the bottom */}
 
         {/* Drawing the hangman figure, based on the number of incorrect guesses */}
-        {incorrectGuesses > 0 && <circle cx="140" cy="70" r="20" className="figure-part" />} {/* Head */}
-        {incorrectGuesses > 1 && <line x1="140" y1="90" x2="140" y2="150" className="figure-part" />} {/* Body */}
-        {incorrectGuesses > 2 && <line x1="140" y1="120" x2="120" y2="100" className="figure-part" />} {/* Left arm */}
-        {incorrectGuesses > 3 && <line x1="140" y1="120" x2="160" y2="100" className="figure-part" />} {/* Right arm */}
-        {incorrectGuesses > 4 && <line x1="140" y1="150" x2="120" y2="180" className="figure-part" />} {/* Left leg */}
-        {incorrectGuesses > 5 && <line x1="140" y1="150" x2="160" y2="180" className="figure-part" />} {/* Right leg */}
+        {guessesToShow > 0 && <circle cx="140" cy="70" r="20" className="figure-part" />} {/* Head */}
+        {guessesToShow > 1 && <line x1="140" y1="90" x2="140" y2="150" className="figure-part" />} {/* Body */}
+        {guessesToShow > 2 && <line x1="140" y1="120" x2="120" y2="100" className="figure-part" />} {/* Left arm */}
+        {guessesToShow > 3 && <line x1="140" y1="120" x2="160" y2="100" className="figure-part" />} {/* Right arm */}
+        {guessesToShow > 4 && <line x1="140" y1="150" x2="120" y2="180" className="figure-part" />} {/* Left leg */}
+        {guessesToShow > 5 && <line x1="140" y1="150" x2="160" y2="180" className="figure-part" />} {/* Right leg */}
       </svg>
     </div>
-  )
+  );
 }
 
-export default HangmanFigure; 
+export default HangmanFigure;

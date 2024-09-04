@@ -1,16 +1,18 @@
-import React from 'react'
+import React from 'react';
+import { useSelector } from 'react-redux';
 
-function WordToGuess({ word, correctGuesses, status }) {
-  // Return the JSX to render the word being guessed
+function WordToGuess() {
+  const { word, correctGuesses, status } = useSelector((state) => state.hangman);
+
   return (
-    <div className="text-center text-4xl font-mono">
+    <div className="text-center text-4xl font-mono mt-4 mb-8">
       {word.split('').map((letter, index) => (
-        // Iterate over each letter of the word, and display either the letter or an underscore
-        // If the letter is in correctGuesses or the game is lost, display the letter, otherwise display an underscore
-        <span key={index} className="mx-2">{correctGuesses.includes(letter) || status === "You have lost!" ? letter : '_'}</span>
+        <span key={index} className="mx-1">
+          {correctGuesses.includes(letter) || status === "You have lost!" ? letter : '_'}
+        </span>
       ))}
     </div>
   );
 }
 
-export default WordToGuess; 
+export default WordToGuess;

@@ -1,32 +1,9 @@
 # Hangman Game
 
-Hangman is a classic word guessing game. The goal is to guess the word by selecting letters one at a time. You are allowed a certain number of incorrect guesses before the game ends. 
+## Description
+This is a modern implementation of the classic Hangman game. The game features a sleek UI, keyboard support, and a points system to make the game more engaging.
 
-## Rules of the Game
-
-1. **Select a Category**: Choose a category to start the game.
-2. **Guess Letters**: Click or press the letter keys to make guesses.
-3. **Correct Guesses**: Correct guesses will reveal the letter in the word.
-4. **Incorrect Guesses**: Incorrect guesses add a part to the hangman figure. Six incorrect guesses will result in losing the game.
-5. **Hints**: You can toggle hints to get some help with the word.
-6. **Winning**: Guess the entire word correctly before running out of guesses to win.
-
-## Features
-- Multiple Categories
-- Keyboard Support
-- Hints
-- Responsive Design
-
-## Installation and Running Locally
-
-Follow these instructions to install and run the Hangman game on your local machine:
-
-### Prerequisites
-
-- Node.js
-- npm or yarn
-
-### Steps
+## Installation
 
 1. **Clone the repository**:
    ```bash
@@ -57,3 +34,47 @@ Follow these instructions to install and run the Hangman game on your local mach
 - **F1**: Help
 - **F2**: Toggle Hint
 - **F5**: Restart Game
+
+## Points System
+
+- 1 point for each correct letter guess that appears only once in the word
+- 2 points for each correct letter guess that appears twice in the word
+- 3 points for each correct letter guess that appears three or more times in the word
+- 50 points for completing a 3-4 letter word
+- 100 points for completing a 5-6 letter word
+- 150 points for completing a 7-8 letter word
+- 200 points for completing a 9-letter or longer word
+- 10 points for each correct guess that keeps the hangman alive
+- -5 points for each incorrect guess
+- -10 points for using a hint
+
+## Features
+
+- **Modern UI**: A sleek and modern user interface.
+- **Keyboard Support**: Use your physical keyboard to make guesses.
+- **Hints**: Reveal hints to help guess the word (costs points).
+- **Points System**: Earn points for correct guesses and completed words.
+- **High Score**: Track your highest score.
+
+## Migration
+
+This project was migrated from Create React App to Vite for faster builds and improved development experience.
+
+## Future Enhancements
+
+- **Difficulty Levels**: Introduce different difficulty levels with more complex words and fewer attempts.
+- **Multiplayer Support**: Implement a multiplayer mode where users can play against each other or cooperate to guess the word.
+- **Sound Effects**: Add sound effects for correct guesses, incorrect guesses, winning, and losing.
+- **Leaderboard**: Implement a leaderboard that tracks the best scores or fastest times.
+- **Custom Words**: Allow users to enter custom words or phrases for others to guess.
+- **Word Categories**: Allow players to choose categories of words, such as animals, countries, movies, etc.
+- **Progress Save**: Enable users to save and continue their game later.
+- **Accessibility**: Ensure the game is fully accessible, including keyboard navigation, screen reader support, and color contrast.
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

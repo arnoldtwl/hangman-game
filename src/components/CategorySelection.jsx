@@ -19,7 +19,7 @@ function CategorySelection() {
   };
 
   return (
-    <div className="hangman-container bg-indigo-500 min-h-screen flex flex-col items-center justify-center p-8">
+    <div className="hangman-container min-h-screen flex flex-col items-center justify-center p-8 pt-20"> {/* Add padding-top */}
         <Header /> {/* Include the Header component */}
         <div className="bg-white p-8 rounded shadow-lg mt-8">
           <h2 className="text-xl font-bold mb-4">Welcome to Hangman Game!</h2>
