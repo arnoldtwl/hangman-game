@@ -1,31 +1,41 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { revealHint, resetGame } from '../store/store';
-import Button from '../utils/button'; // Correct import
-import KeyboardButton from '../utils/KeyboardButton';
+import { revealHint, resetGame, restartGame } from '../store/store';
+import Button from '../utils/Button'; // Changed 'button' to 'Button'
 
 function Keyboard({ onGuess, guessedLetters }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { hintsUsed, maxHints, points } = useSelector((state) => state.hangman);
-  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const { hintsUsed, maxHints, points, word, correctGuesses, incorrectGuesses } = useSelector((state) => state.hangman);
+  const rows = [
+    "QWERTYUIOP",
+    "ASDFGHJKL",
+    "ZXCVBNM"
+  ];
 
   useEffect(() => {
     const handleKeyDown = (event) => {
       const letter = event.key.toUpperCase(); // Convert the key pressed to uppercase
       // Check if the key pressed is a letter and hasn't been guessed already
-      if (alphabet.includes(letter) && !guessedLetters.includes(letter)) {
+      if (rows.join('').includes(letter) && !guessedLetters.includes(letter)) {
         onGuess(letter); // Trigger the guess
       }
 
       if (event.key === 'F1') {
+        event.preventDefault(); // Prevent the default browser help page
         // Navigate to Help page on F1 key press
         navigate('/help');
       }
 
       if (event.key === 'F2') {
+        event.preventDefault(); // Prevent any default action
         dispatch(revealHint()); // Reveal a hint on F2 key press
+      }
+
+      if (event.key === 'F5') {
+        event.preventDefault(); // Prevent any default action
+        dispatch(restartGame()); // Restart the game on F5 key press
       }
     };
 
@@ -35,7 +45,7 @@ function Keyboard({ onGuess, guessedLetters }) {
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [alphabet, guessedLetters, onGuess, dispatch, navigate]);
+  }, [rows, guessedLetters, onGuess, dispatch, navigate]);
 
   const handleRevealHint = () => {
     dispatch(revealHint());
@@ -49,28 +59,41 @@ function Keyboard({ onGuess, guessedLetters }) {
     navigate('/help');
   };
 
+  const getButtonClass = (letter) => {
+    if (correctGuesses.includes(letter)) {
+      return 'correct-guess text-white';
+    } else if (incorrectGuesses.includes(letter)) {
+      return 'incorrect-guess text-white';
+    } else {
+      return 'keyboard-button text-white';
+    }
+  };
+
   return (
     <div>
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-4 mt-6">
-        {alphabet.split('').map((letter, index) => (
-          <Button
-            key={index}
-            className={`bg-blue-500 text-white font-bold ${guessedLetters.includes(letter) ? 'bg-gray-400 cursor-not-allowed' : ''}`}
-            disabled={guessedLetters.includes(letter)}
-            onClick={() => onGuess(letter)}
-          >
-            {letter}
-          </Button>
-        ))}
-      </div>
+      {rows.map((row, rowIndex) => (
+        <div key={rowIndex} className="flex justify-center space-x-2 mt-2">
+          {row.split('').map((letter, index) => (
+            <Button
+              key={index}
+              className={`${getButtonClass(letter)} font-bold ${guessedLetters.includes(letter) ? 'cursor-not-allowed' : ''}`}
+              disabled={guessedLetters.includes(letter)}
+              onClick={() => onGuess(letter)}
+              aria-label={`Guess letter ${letter}`}
+            >
+              {letter}
+            </Button>
+          ))}
+        </div>
+      ))}
       <div className="flex justify-center space-x-4 mt-4"> {/* Updated button group */}
-        <Button onClick={handleHelpClick} className="bg-yellow-500 text-white hover:bg-yellow-600">Help</Button>
-        <Button onClick={handleRevealHint} className="bg-orange-500 text-white hover:bg-orange-600" disabled={points < 10 || hintsUsed >= maxHints}>
-          Hint ({maxHints - hintsUsed} left)
-        </Button>
-        <Button onClick={handleReset} className="bg-red-500 text-white hover:bg-red-600">
+        <Button onClick={handleHelpClick} className="help-button text-white hover:bg-purple-600" aria-label="Help">Help</Button> {/* Changed to purple */}
+        <Button onClick={handleRevealHint} className="hint-button text-white hover:bg-green-600" disabled={points < 10 || hintsUsed >= maxHints} aria-label={`Hint (${maxHints - hintsUsed})`}>
+          Hint ({maxHints - hintsUsed})
+        </Button> {/* Changed to green */}
+        <Button onClick={handleReset} className="reset-button text-white hover:bg-red-600" aria-label="Reset">
           Reset
-        </Button>
+        </Button> {/* Kept as red */}
       </div>
     </div>
   )

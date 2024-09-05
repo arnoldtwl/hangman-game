@@ -1,13 +1,14 @@
 import React from "react";
 import styled from "styled-components";
 
-const KeyboardButton = ({ onClick, children, className, disabled }) => {
+const KeyboardButton = ({ onClick, children, className, disabled, ...props }) => {
   return (
     <StyledWrapper>
       <button
         onClick={onClick}
         className={`game-ui-button ${className}`}
         disabled={disabled}
+        {...props}
       >
         {children}
       </button>
@@ -33,6 +34,15 @@ const StyledWrapper = styled.div`
     display: inline-block;
     margin: 20px;
     outline: none;
+  }
+
+  .game-ui-button:focus {
+    outline: 2px solid #007BFF; /* Ensure focus styles are visible */
+  }
+
+  .header-button:focus,
+  .play-button:focus {
+    outline: none; /* Remove focus styles for header and play buttons */
   }
 
   .game-ui-button::before {
@@ -66,22 +76,10 @@ const StyledWrapper = styled.div`
 
   .game-ui-button:hover {
     box-shadow: 0 0 15px rgba(0, 240, 255, 0.9), 0 0 25px rgba(0, 240, 255, 0.7), 0 0 35px rgba(0, 240, 255, 0.5);
-    animation: pulse 1.5s infinite;
+    animation: none; /* Stop animation on hover */
   }
 
-  @keyframes pulse {
-    0% {
-      box-shadow: 0 0 15px rgba(0, 240, 255, 0.9), 0 0 25px rgba(0, 240, 255, 0.7), 0 0 35px rgba(0, 240, 255, 0.5);
-    }
-    50% {
-      box-shadow: 0 0 20px rgba(0, 240, 255, 1), 0 0 30px rgba(0, 240, 255, 0.8), 0 0 40px rgba(0, 240, 255, 0.6);
-    }
-    100% {
-      box-shadow: 0 0 15px rgba(0, 240, 255, 0.9), 0 0 25px rgba(0, 240, 255, 0.7), 0 0 35px rgba(0, 240, 255, 0.5);
-    }
-  }
-
-  .game-ui-button::after {
+  .game-ui-button:active::after {
     content: "";
     position: absolute;
     top: 50%;
@@ -102,18 +100,42 @@ const StyledWrapper = styled.div`
   }
 
   .keyboard-button {
-    background: #2d3748; /* Dark button background */
-    color: #e2e8f0; /* Light button text */
-    box-shadow: none; /* Remove box shadow */
+    background: linear-gradient(45deg, #00f0ff, #00bfff); /* Same background as other buttons */
+    color: #ffffff; /* Light button text */
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.7), 0 0 20px rgba(0, 240, 255, 0.5), 0 0 30px rgba(0, 240, 255, 0.3); /* Same box shadow */
     padding: 10px 20px; /* Adjust padding for keyboard buttons */
     margin: 4px; /* Adjust margin for keyboard buttons */
+    transition: all 0.3s ease, box-shadow 0.3s ease; /* Same transition */
   }
 
-  .keyboard-button::before,
-  .keyboard-button:hover::before,
-  .keyboard-button:hover,
-  .keyboard-button:active::after {
-    display: none; /* Remove animations and pseudo-elements */
+  .keyboard-button:hover {
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.9), 0 0 25px rgba(0, 240, 255, 0.7), 0 0 35px rgba(0, 240, 255, 0.5);
+  }
+
+  .correct-guess,
+  .incorrect-guess {
+    box-shadow: none; /* Remove box shadow for clicked buttons */
+    animation: none; /* Remove animation for clicked buttons */
+  }
+
+  .help-button {
+    background: #6b46c1; /* Purple background */
+  }
+
+  .hint-button {
+    background: #38a169; /* Green background */
+  }
+
+  .reset-button {
+    background: #e53e3e; /* Red background */
+  }
+
+  .correct-guess {
+    background: #38a169; /* Green background for correct guesses */
+  }
+
+  .incorrect-guess {
+    background: #e53e3e; /* Red background for incorrect guesses */
   }
 `;
 

@@ -78,6 +78,7 @@ const hangmanSlice = createSlice({
         },
         setNotStarted: (state) => {
             state.status = "Not Started";
+            state.points = 0; // Reset points to 0
         },
         toggleHelp: (state) => {
             state.showHelp = !state.showHelp;
