@@ -7,7 +7,7 @@ import Button from '../utils/Button';
 function Keyboard({ onGuess, guessedLetters }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { hintsUsed, maxHints, points, word, correctGuesses, incorrectGuesses } = useSelector((state) => state.hangman);
+  const { hintsUsed, maxHints, points, correctGuesses, incorrectGuesses } = useSelector((state) => state.hangman);
   const rows = [
     "QWERTYUIOP",
     "ASDFGHJKL",

@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: my-web-app
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    runtime: node
+    envVars:
+      - key: NODE_VERSION
+        value: 20.17.0
