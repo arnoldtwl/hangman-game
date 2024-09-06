@@ -1,47 +1,32 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useLocation } from 'react-router-dom';
-import { makeGuess, restartGame, toggleHelp, gameWon, gameLost, selectCategory } from '../store/store';
+import { makeGuess, restartGame, gameWon, gameLost } from '../store/store';
 import HangmanFigure from './HangmanFigure';
-import WordToGuess from './WordToGuess';
 import Keyboard from './Keyboard';
 import Scoreboard from './Scoreboard';
-import Help from './Help';
-import CategorySelection from './CategorySelection';
 import Header from './Header';
+import WordToGuess from './WordToGuess';
+import Button from '../utils/Button'; 
+import { Link } from 'react-router-dom'; 
 
 const Game = () => {
-    // Get the selected category from the location state
-    const location = useLocation();
-    const selectedCategory = location.state?.category;
-
-    // Define dispatch and state from Redux store
     const dispatch = useDispatch();
-    const { category, word, correctGuesses, incorrectGuesses, status, showHelp, showHint, hint } = useSelector((state) => state.hangman);
+    const { word, correctGuesses, incorrectGuesses, status, showHint, hint, points, highScore } = useSelector((state) => state.hangman);
 
-    // Handler for guessing a letter
     const handleGuess = (letter) => {
         if (status === "Playing") {
             dispatch(makeGuess(letter));
         }
     };
 
-    // Handler for restarting the game
     const handleRestart = () => {
-        dispatch(restartGame(category));
+        dispatch(restartGame());
     };
 
-    // Handler for toggling help
-    const toggleHelper = () => {
-        dispatch(toggleHelp());
+    const handlePlay = () => {
+        dispatch(restartGame());
     };
 
-    // Effect to select category on component mount
-    useEffect(() => {
-        dispatch(selectCategory(selectedCategory));
-    }, [selectedCategory, dispatch]);
-
-    // Effect to check for game won or lost condition
     useEffect(() => {
         if (incorrectGuesses.length === 6) {
             dispatch(gameLost());
@@ -52,25 +37,45 @@ const Game = () => {
         }
     }, [correctGuesses, incorrectGuesses, word, dispatch]);
 
-    // If no category selected, redirect to category selection
-    if (category === null) {
-        return <CategorySelection />;
-    }
-
     return (
-        <div className="hangman-container bg-indigo-500 min-h-screen flex flex-col items-center justify-center p-8">
+        <div className="hangman-container min-h-screen flex flex-col items-center justify-center p-8 pt-40">
             <Header />
-            <HangmanFigure incorrectGuesses={incorrectGuesses.length} />
-            <WordToGuess word={word} correctGuesses={correctGuesses} status={status} />
-            {status === "Playing" ? (
-                <Keyboard onGuess={handleGuess} guessedLetters={[...correctGuesses, ...incorrectGuesses]} onHelp={toggleHelper} />
+            <div className="points-display">
+                <div className="text-2xl font-bold">Score: {points}</div>
+                <div className="text-xl">High Score: {highScore}</div>
+            </div>
+            <HangmanFigure />
+            {status === "Not Started" ? (
+                <div className="text-center mt-8">
+                    <h2 className="text-2xl font-bold mb-4">Welcome to Hangman Game!</h2>
+                    <p className="mb-4">Guess the word letter by letter. Incorrect guesses will add a part to the hangman figure. Six incorrect guesses result in losing the game.</p>
+                    <p className="mb-4">Good luck and have fun!</p>
+                    <Button onClick={handlePlay} className="bg-green-500 text-white hover:bg-green-600 mt-4 play-button">Play</Button>
+                    <p className="mt-4"><Link to="/help" className="text-blue-500 hover:underline">Need more help? Click here</Link></p>
+                </div>
             ) : (
-                <Scoreboard status={status} onRestart={handleRestart} onHelp={toggleHelper} />
+                <>
+                    <WordToGuess />
+                    {status === "Playing" ? (
+                        <>
+                            <Keyboard onGuess={handleGuess} guessedLetters={[...correctGuesses, ...incorrectGuesses]} handleRestart={handleRestart} />
+                            <div className="text-center mt-8">
+                                <p className="mb-4">Use the on-screen keyboard or your physical keyboard to make guesses. You can also use the following shortcuts:</p>
+                                <ul className="list-disc list-inside mb-4">
+                                    <li><strong>F1:</strong> Open Help</li>
+                                    <li><strong>F2:</strong> Reveal a Hint (costs 10 points, max 3 hints per word)</li>
+                                    <li><strong>F5:</strong> Restart Game</li>
+                                </ul>
+                            </div>
+                        </>
+                    ) : (
+                        <Scoreboard status={status === "Not Started" ? "" : status} onRestart={handleRestart} />
+                    )}
+                    {showHint && <div className="hint text-center mt-2 text-lg text-gray-700">{hint}</div>}
+                </>
             )}
-            {showHelp && <Help onClose={toggleHelper} />}
-            {showHint && <div className="hint text-center mt-2 text-lg text-gray-700">{hint}</div>}
         </div>
     );
 };
 
-export default Game; 
+export default Game;

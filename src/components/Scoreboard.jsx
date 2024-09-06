@@ -1,27 +1,34 @@
-import React from 'react'
+import React from 'react';
 import { useDispatch } from 'react-redux';
-import { selectCategory } from '../store/store'
+import { resetGame, restartGame } from '../store/store';
+import Button from '../utils/Button'; // Import Button component
 
-function Scoreboard({ status, onRestart, onHelp }) {
-  const dispatch = useDispatch(); // Hook to dispatch actions
+function Scoreboard({ status }) {
+  const dispatch = useDispatch();
 
-  // Function to handle category selection, resetting the category to null
-  const handleChooseCategory = () => {
-    dispatch(selectCategory(null));
+  const handlePlay = () => {
+    dispatch(restartGame());
+  };
+
+  const handleReset = () => {
+    dispatch(resetGame());
   };
 
   return (
-    <div className="text-center mt-4">
-      <div className="text-2xl font-bold mb-4">{status}</div> {/* Display the game status */}
-      <button onClick={onRestart} className="bg-green-500 text-white px-4 py-2 rounded mr-2 hover:bg-green-600">Play Again</button> {/* Button to restart the game */}
-      <button 
-        onClick={handleChooseCategory} 
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-        Choose Category
-      </button> {/* Button to choose a new category */}
-      <button onClick={onHelp} className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Help</button> {/* Button to display help */}
+    <div className="text-center mt-8">
+      <div className="text-2xl font-bold mb-4">{status}</div>
+      <div className="flex justify-center space-x-4">
+        {status === "You have won!" ? (
+          <>
+            <Button onClick={handlePlay} className="help-button text-white hover:bg-purple-600" aria-label="Continue">Continue</Button>
+            <Button onClick={handleReset} className="hint-button text-white hover:bg-green-600" aria-label="Reset">Reset</Button>
+          </>
+        ) : (
+          <Button onClick={handleReset} className="reset-button text-white hover:bg-red-600" aria-label="Play Again">Play Again</Button>
+        )}
+      </div>
     </div>
   );
 }
 
-export default Scoreboard; 
+export default Scoreboard;

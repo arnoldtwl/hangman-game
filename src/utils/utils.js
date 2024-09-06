@@ -1,4 +1,3 @@
-// Category data
 const categories = {
   animals: [
     { word: "ELEPHANT", hint: "A large mammal with a trunk." },
@@ -122,17 +121,11 @@ const categories = {
   ]
 };
 
-
-/**
- * Returns a random word with hints from the specified category or from all categories if no category is provided.
- * @param {string} category - The category of words to choose from. If no category is provided, all categories will be used.
- */
 export function getRandomWordWithHints(category) {
   let wordsWithHints;
   if (category && category !== "all categories") {
     wordsWithHints = categories[category];
   } else {
-    // Concatenate all the words from all categories if no specific category is provided
     wordsWithHints = [].concat(...Object.values(categories));
   }
   const randomIndex = Math.floor(Math.random() * wordsWithHints.length);

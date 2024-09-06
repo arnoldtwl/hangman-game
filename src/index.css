@@ -1,0 +1,136 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    box-sizing: border-box;
+}
+
+button:focus {
+    outline: 2px solid #007BFF;
+}
+
+.figure-container {
+    fill: transparent;
+    stroke: #fff;
+    stroke-width: 4px;
+    stroke-linecap: round;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.figure-part {
+    animation: fadeIn 0.5s ease-in-out forwards;
+}
+
+.hangman-container {
+    background-color: #1a202c; 
+    color: #e2e8f0; 
+    padding-top: 100px;
+}
+
+button {
+    background-color: #2d3748;
+    color: #e2e8f0;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    margin: 4px;
+}
+
+button:hover {
+    background-color: #4a5568;
+}
+
+button:disabled {
+    background-color: #718096;
+}
+
+.header {
+    background-color: #2d3748;
+    color: #e2e8f0;
+    padding: 10px 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+}
+
+.header nav a {
+    color: #e2e8f0;
+    text-decoration: none;
+    margin-left: 20px;
+    font-size: 18px;
+}
+
+.header nav a:hover {
+    text-decoration: underline;
+}
+
+.points-display {
+    position: fixed;
+    top: 150px; 
+    right: 16px;
+    padding: 10px;
+    background-color: #2d3748;
+    color: #e2e8f0;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.word-to-guess span {
+    opacity: 1; 
+    color: #e2e8f0;
+}
+
+.help-content {
+    font-size: 1.25rem;
+    line-height: 1.6;
+    color: #1a202c;
+}
+
+.help-content h2 {
+    font-size: 2rem;
+}
+
+.help-content p, .help-content ul {
+    margin-bottom: 1.5rem;
+}
+
+@media only screen and (max-width: 600px) {
+    .hangman-container {
+        font-size: 14px;
+    }
+}
+
+@media only screen and (min-width: 601px) and (max-width: 1024px) {
+    .hangman-container {
+        font-size: 18px;
+    }
+}
+
+@media only screen and (min-width: 1025px) {
+    .hangman-container {
+        font-size: 22px;
+    }
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+}
