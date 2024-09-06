@@ -12,7 +12,7 @@ function HangmanFigure() {
       for (let i = 1; i <= maxIncorrectGuesses; i++) {
         timer = setTimeout(() => {
           setVisibleParts(i);
-        }, i * 500); // Adjust the timing as needed
+        }, i * 500); 
       }
       return () => clearTimeout(timer);
     } else {

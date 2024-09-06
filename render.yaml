@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: hangman-game
+    runtime: node  
+    repo: https://github.com/arnoldtwl/hangman-game
+    buildCommand: npm install && npm run build  
+    startCommand: npm start  
+    staticPublishPath: build
+    env: node 
+    envVars:
+      - key: NODE_VERSION
+        value: 20.17.0 
+    previews:
+      generation: automatic
+version: "1"
