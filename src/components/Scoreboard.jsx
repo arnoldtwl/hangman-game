@@ -20,11 +20,11 @@ function Scoreboard({ status }) {
       <div className="flex justify-center space-x-4">
         {status === "You have won!" ? (
           <>
-            <Button onClick={handlePlay} className="help-button text-white hover:bg-purple-600">Continue</Button>
-            <Button onClick={handleReset} className="hint-button text-white hover:bg-green-600">Reset</Button>
+            <Button onClick={handlePlay} className="help-button text-white hover:bg-purple-600" aria-label="Continue">Continue</Button>
+            <Button onClick={handleReset} className="hint-button text-white hover:bg-green-600" aria-label="Reset">Reset</Button>
           </>
         ) : (
-          <Button onClick={handleReset} className="reset-button text-white hover:bg-red-600">Play Again</Button>
+          <Button onClick={handleReset} className="reset-button text-white hover:bg-red-600" aria-label="Play Again">Play Again</Button>
         )}
       </div>
     </div>

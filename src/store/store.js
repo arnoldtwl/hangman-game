@@ -69,16 +69,16 @@ const hangmanSlice = createSlice({
                 hint,
                 correctGuesses: [],
                 incorrectGuesses: [],
-                status: 'Playing', // Set status to "Playing"
-                points: 0, // Reset points to 0
+                status: 'Playing', 
+                points: 0, 
                 hintsUsed: 0,
                 showHint: false,
-                highScore: state.highScore, // Keep high score
+                highScore: state.highScore, 
             };
         },
         setNotStarted: (state) => {
             state.status = "Not Started";
-            state.points = 0; // Reset points to 0
+            state.points = 0; 
         },
         toggleHelp: (state) => {
             state.showHelp = !state.showHelp;

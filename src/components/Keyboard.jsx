@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { revealHint, resetGame, restartGame } from '../store/store';
-import Button from '../utils/Button'; // Changed 'button' to 'Button'
+import Button from '../utils/Button';
 
 function Keyboard({ onGuess, guessedLetters }) {
   const dispatch = useDispatch();
@@ -16,32 +16,29 @@ function Keyboard({ onGuess, guessedLetters }) {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
-      const letter = event.key.toUpperCase(); // Convert the key pressed to uppercase
-      // Check if the key pressed is a letter and hasn't been guessed already
+      const letter = event.key.toUpperCase(); 
+   
       if (rows.join('').includes(letter) && !guessedLetters.includes(letter)) {
-        onGuess(letter); // Trigger the guess
+        onGuess(letter); 
       }
 
       if (event.key === 'F1') {
-        event.preventDefault(); // Prevent the default browser help page
-        // Navigate to Help page on F1 key press
+        event.preventDefault();
         navigate('/help');
       }
 
       if (event.key === 'F2') {
-        event.preventDefault(); // Prevent any default action
-        dispatch(revealHint()); // Reveal a hint on F2 key press
+        event.preventDefault();
+        dispatch(revealHint());
       }
 
       if (event.key === 'F5') {
-        event.preventDefault(); // Prevent any default action
-        dispatch(restartGame()); // Restart the game on F5 key press
+        event.preventDefault();
+        dispatch(restartGame());
       }
     };
 
-    // Attach the event listener to the window
     window.addEventListener('keydown', handleKeyDown);
-    // Cleanup function to remove the event listener
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
@@ -86,14 +83,14 @@ function Keyboard({ onGuess, guessedLetters }) {
           ))}
         </div>
       ))}
-      <div className="flex justify-center space-x-4 mt-4"> {/* Updated button group */}
-        <Button onClick={handleHelpClick} className="help-button text-white hover:bg-purple-600" aria-label="Help">Help</Button> {/* Changed to purple */}
+      <div className="flex justify-center space-x-4 mt-4">
+        <Button onClick={handleHelpClick} className="help-button text-white hover:bg-purple-600" aria-label="Help">Help</Button>
         <Button onClick={handleRevealHint} className="hint-button text-white hover:bg-green-600" disabled={points < 10 || hintsUsed >= maxHints} aria-label={`Hint (${maxHints - hintsUsed})`}>
           Hint ({maxHints - hintsUsed})
-        </Button> {/* Changed to green */}
+        </Button> 
         <Button onClick={handleReset} className="reset-button text-white hover:bg-red-600" aria-label="Reset">
           Reset
-        </Button> {/* Kept as red */}
+        </Button>
       </div>
     </div>
   )
