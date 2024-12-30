@@ -7,12 +7,27 @@ import Button from '../utils/Button';
 function Keyboard({ onGuess, guessedLetters }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { hintsUsed, maxHints, points, correctGuesses, incorrectGuesses } = useSelector((state) => state.hangman);
+  const { hintsUsed, points, correctGuesses, incorrectGuesses } = useSelector((state) => state.hangman);
   const rows = [
     "QWERTYUIOP",
     "ASDFGHJKL",
     "ZXCVBNM"
   ];
+
+  const getHintButtonText = () => {
+    if (hintsUsed < 3) {
+      return `Hint (${3 - hintsUsed} free)`;
+    } else {
+      const cost = 10 * Math.pow(2, hintsUsed - 3);
+      return `Hint (${cost} pts)`;
+    }
+  };
+
+  const isHintDisabled = () => {
+    if (hintsUsed < 3) return false;
+    const cost = 10 * Math.pow(2, hintsUsed - 3);
+    return points < cost;
+  };
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -85,8 +100,13 @@ function Keyboard({ onGuess, guessedLetters }) {
       ))}
       <div className="flex justify-center space-x-4 mt-4">
         <Button onClick={handleHelpClick} className="help-button text-white hover:bg-purple-600" aria-label="Help">Help</Button>
-        <Button onClick={handleRevealHint} className="hint-button text-white hover:bg-green-600" disabled={points < 10 || hintsUsed >= maxHints} aria-label={`Hint (${maxHints - hintsUsed})`}>
-          Hint ({maxHints - hintsUsed})
+        <Button 
+          onClick={handleRevealHint} 
+          className="hint-button text-white hover:bg-green-600" 
+          disabled={isHintDisabled()} 
+          aria-label={getHintButtonText()}
+        >
+          {getHintButtonText()}
         </Button> 
         <Button onClick={handleReset} className="reset-button text-white hover:bg-red-600" aria-label="Reset">
           Reset

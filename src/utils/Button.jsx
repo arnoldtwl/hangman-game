@@ -6,7 +6,7 @@ const KeyboardButton = ({ onClick, children, className, disabled, ...props }) =>
     <StyledWrapper>
       <button
         onClick={onClick}
-        className={`game-ui-button ${className}`}
+        className={`base-button ${className}`}
         disabled={disabled}
         {...props}
       >
@@ -17,8 +17,7 @@ const KeyboardButton = ({ onClick, children, className, disabled, ...props }) =>
 };
 
 const StyledWrapper = styled.div`
-  .game-ui-button {
-    background: linear-gradient(45deg, #00f0ff, #00bfff);
+  .base-button {
     border: none;
     border-radius: 12px;
     padding: 15px 30px;
@@ -27,7 +26,6 @@ const StyledWrapper = styled.div`
     font-family: "Orbitron", sans-serif;
     text-transform: uppercase;
     cursor: pointer;
-    box-shadow: 0 0 10px rgba(0, 240, 255, 0.7), 0 0 20px rgba(0, 240, 255, 0.5), 0 0 30px rgba(0, 240, 255, 0.3);
     transition: all 0.3s ease, box-shadow 0.3s ease;
     position: relative;
     overflow: hidden;
@@ -36,16 +34,7 @@ const StyledWrapper = styled.div`
     outline: none;
   }
 
-  .game-ui-button:focus {
-    outline: 2px solid #007BFF; /* Ensure focus styles are visible */
-  }
-
-  .header-button:focus,
-  .play-button:focus {
-    outline: none; /* Remove focus styles for header and play buttons */
-  }
-
-  .game-ui-button::before {
+  .base-button::before {
     content: "";
     position: absolute;
     top: 0;
@@ -70,16 +59,11 @@ const StyledWrapper = styled.div`
     }
   }
 
-  .game-ui-button:hover::before {
+  .base-button:hover::before {
     display: none;
   }
 
-  .game-ui-button:hover {
-    box-shadow: 0 0 15px rgba(0, 240, 255, 0.9), 0 0 25px rgba(0, 240, 255, 0.7), 0 0 35px rgba(0, 240, 255, 0.5);
-    animation: none; /* Stop animation on hover */
-  }
-
-  .game-ui-button:active::after {
+  .base-button:active::after {
     content: "";
     position: absolute;
     top: 50%;
@@ -94,48 +78,58 @@ const StyledWrapper = styled.div`
     pointer-events: none;
   }
 
-  .game-ui-button:active::after {
+  .base-button:active::after {
     transform: translate(-50%, -50%) scale(1);
     opacity: 1;
   }
 
-  .keyboard-button {
-    background: linear-gradient(45deg, #00f0ff, #00bfff); /* Same background as other buttons */
-    color: #ffffff; /* Light button text */
-    box-shadow: 0 0 10px rgba(0, 240, 255, 0.7), 0 0 20px rgba(0, 240, 255, 0.5), 0 0 30px rgba(0, 240, 255, 0.3); /* Same box shadow */
-    padding: 10px 20px; /* Adjust padding for keyboard buttons */
-    margin: 4px; /* Adjust margin for keyboard buttons */
-    transition: all 0.3s ease, box-shadow 0.3s ease; /* Same transition */
+  /* Game UI Button Styles */
+  .game-ui-button {
+    background: linear-gradient(45deg, #00f0ff, #00bfff);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.7), 0 0 20px rgba(0, 240, 255, 0.5), 0 0 30px rgba(0, 240, 255, 0.3);
   }
 
-  .keyboard-button:hover {
+  .game-ui-button:hover {
     box-shadow: 0 0 15px rgba(0, 240, 255, 0.9), 0 0 25px rgba(0, 240, 255, 0.7), 0 0 35px rgba(0, 240, 255, 0.5);
   }
 
-  .correct-guess,
-  .incorrect-guess {
-    box-shadow: none; /* Remove box shadow for clicked buttons */
-    animation: none; /* Remove animation for clicked buttons */
+  /* Header Button Styles */
+  .header-button {
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3), 0 0 20px rgba(255, 255, 255, 0.2), 0 0 30px rgba(255, 255, 255, 0.1);
+  }
+
+  .header-button:hover {
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.4), 0 0 25px rgba(255, 255, 255, 0.3), 0 0 35px rgba(255, 255, 255, 0.2);
+  }
+
+  /* Game Specific Button Styles */
+  .keyboard-button {
+    padding: 10px 20px;
+    margin: 4px;
   }
 
   .help-button {
-    background: #6b46c1; /* Purple background */
+    background: linear-gradient(45deg, #6b46c1, #805ad5);
   }
 
   .hint-button {
-    background: #38a169; /* Green background */
+    background: linear-gradient(45deg, #38a169, #48bb78);
   }
 
   .reset-button {
-    background: #e53e3e; /* Red background */
+    background: linear-gradient(45deg, #e53e3e, #f56565);
   }
 
   .correct-guess {
-    background: #38a169; /* Green background for correct guesses */
+    background: linear-gradient(45deg, #38a169, #48bb78);
+    box-shadow: none;
+    animation: none;
   }
 
   .incorrect-guess {
-    background: #e53e3e; /* Red background for incorrect guesses */
+    background: linear-gradient(45deg, #e53e3e, #f56565);
+    box-shadow: none;
+    animation: none;
   }
 `;
 

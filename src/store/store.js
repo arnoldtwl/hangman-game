@@ -104,13 +104,22 @@ const hangmanSlice = createSlice({
             state.showHint = !state.showHint;
         },
         revealHint: (state) => {
-            if (state.hintsUsed < state.maxHints && state.points >= 10) {
-                const unrevealedLetters = state.word.split('').filter(letter => !state.correctGuesses.includes(letter) && letter !== ' ');
-                if (unrevealedLetters.length > 0) {
+            const unrevealedLetters = state.word.split('').filter(letter => !state.correctGuesses.includes(letter) && letter !== ' ');
+            if (unrevealedLetters.length > 0) {
+                if (state.hintsUsed < 3) {
+                    // First three hints are free
                     const hintLetter = unrevealedLetters[Math.floor(Math.random() * unrevealedLetters.length)];
                     state.correctGuesses.push(hintLetter);
                     state.hintsUsed += 1;
-                    state.points -= 10;
+                } else {
+                    // Calculate cost for subsequent hints (doubles each time)
+                    const hintCost = 10 * Math.pow(2, state.hintsUsed - 3);
+                    if (state.points >= hintCost) {
+                        const hintLetter = unrevealedLetters[Math.floor(Math.random() * unrevealedLetters.length)];
+                        state.correctGuesses.push(hintLetter);
+                        state.hintsUsed += 1;
+                        state.points -= hintCost;
+                    }
                 }
             }
         },

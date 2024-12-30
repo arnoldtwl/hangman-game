@@ -31,7 +31,7 @@ button:focus {
     animation: fadeIn 0.5s ease-in-out forwards;
 }
 
-.hangman-container {
+.hangman-container, .homepage-container {
     background-color: #1a202c; 
     color: #e2e8f0; 
     padding-top: 100px;
