@@ -32,15 +32,15 @@ const GuessedLetters = ({ correctGuesses, incorrectGuesses }) => {
       
       <div className="flex justify-center gap-4 text-sm">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-sm bg-gradient-to-br from-green-500 to-green-600"></div>
+          <div className="w-4 h-4 rounded-xs bg-gradient-to-br from-green-500 to-green-600"></div>
           <span className="text-slate-300">Correct</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-sm bg-gradient-to-br from-red-500 to-red-600"></div>
+          <div className="w-4 h-4 rounded-xs bg-gradient-to-br from-red-500 to-red-600"></div>
           <span className="text-slate-300">Incorrect</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-sm bg-slate-700"></div>
+          <div className="w-4 h-4 rounded-xs bg-slate-700"></div>
           <span className="text-slate-300">Not Guessed</span>
         </div>
       </div>
