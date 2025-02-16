@@ -32,35 +32,29 @@ function Scoreboard({ status, showButtons = true }) {
           )}
         </>
       )}
-      <div className="grid grid-cols-3 gap-6 mb-6">
+      <div className="scoreboard">
         {/* Score Card */}
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-4 rounded-lg border border-cyan-500/20 shadow-lg shadow-cyan-500/10">
-          <div className="flex flex-col items-center space-y-2">
-            <div className="text-sm font-semibold uppercase tracking-wider text-cyan-400">Score</div>
-            <div className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 text-transparent bg-clip-text">
-              {points}
-            </div>
+        <div className="score-item bg-gradient-to-br from-slate-800 to-slate-900 p-4 rounded-lg border border-cyan-500/20 shadow-lg shadow-cyan-500/10">
+          <div className="score-value text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 text-transparent bg-clip-text">
+            {points}
           </div>
+          <div className="score-label text-sm font-semibold uppercase tracking-wider text-cyan-400">Score</div>
         </div>
 
         {/* Streak Card */}
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-4 rounded-lg border border-green-500/20 shadow-lg shadow-green-500/10">
-          <div className="flex flex-col items-center space-y-2">
-            <div className="text-sm font-semibold uppercase tracking-wider text-green-400">Streak</div>
-            <div className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 text-transparent bg-clip-text">
-              {streak}
-            </div>
+        <div className="score-item bg-gradient-to-br from-slate-800 to-slate-900 p-4 rounded-lg border border-green-500/20 shadow-lg shadow-green-500/10">
+          <div className="score-value text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 text-transparent bg-clip-text">
+            {streak}
           </div>
+          <div className="score-label text-sm font-semibold uppercase tracking-wider text-green-400">Streak</div>
         </div>
 
         {/* High Score Card */}
-        <div className="bg-gradient-to-br from-slate-800 to-slate-900 p-4 rounded-lg border border-purple-500/20 shadow-lg shadow-purple-500/10">
-          <div className="flex flex-col items-center space-y-2">
-            <div className="text-sm font-semibold uppercase tracking-wider text-purple-400">High Score</div>
-            <div className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 text-transparent bg-clip-text">
-              {highScore}
-            </div>
+        <div className="score-item bg-gradient-to-br from-slate-800 to-slate-900 p-4 rounded-lg border border-purple-500/20 shadow-lg shadow-purple-500/10">
+          <div className="score-value text-3xl font-bold bg-gradient-to-r from-purple-400 to-indigo-400 text-transparent bg-clip-text">
+            {highScore}
           </div>
+          <div className="score-label text-sm font-semibold uppercase tracking-wider text-purple-400">High Score</div>
         </div>
       </div>
 

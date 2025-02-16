@@ -62,76 +62,74 @@ const Game = () => {
     }, [correctGuesses, incorrectGuesses, word, dispatch]);
 
     return (
-        <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-slate-900 to-slate-800 text-white">
+        <div className="min-h-screen w-full bg-gradient-to-br from-indigo-950 via-purple-900 to-slate-900 text-white overflow-x-hidden">
             <Header />
             
-            <div className="w-full max-w-4xl mx-auto px-4 pt-20 pb-24 md:pb-8">
-                <div className="flex flex-col items-center">
-                    <HangmanFigure />
+            <div className="w-full max-w-6xl mx-auto px-2 pt-12 pb-4 lg:px-4 lg:pt-14 lg:pb-8">
+                <div className="grid lg:grid-cols-2 gap-4 lg:gap-8 items-start">
+                    <div className="flex flex-col items-center w-full space-y-2 lg:space-y-4">
+                        <div className="w-full max-w-[280px] lg:max-w-none">
+                            <HangmanFigure />
+                        </div>
+                        <WordToGuess />
+                        {showHint && (
+                            <div className="hint text-center mt-1 text-sm lg:text-lg text-cyan-400">
+                                {hint}
+                            </div>
+                        )}
+                    </div>
 
-                    {status === "Playing" ? (
-                        <>
-                            <WordToGuess />
-                            {showHint && (
-                                <div className="hint text-center mt-2 text-lg text-cyan-400">
-                                    {hint}
-                                </div>
-                            )}
-                            
-                            {/* Hidden input for mobile keyboard */}
-                            <input
-                                ref={hiddenInput}
-                                type="text"
-                                className="opacity-0 h-0 w-0 absolute"
-                                onBlur={focusInput}
-                                onChange={(e) => {
-                                    const letter = e.target.value.slice(-1).toUpperCase();
-                                    if (/^[A-Z]$/.test(letter)) {
-                                        handleGuess(letter);
-                                    }
-                                    e.target.value = '';
-                                }}
-                            />
-
-                            {/* Show keyboard only on desktop */}
-                            <div className="hidden md:block">
-                                <Keyboard 
-                                    onGuess={handleGuess} 
-                                    guessedLetters={[...correctGuesses, ...incorrectGuesses]} 
+                    <div className="flex flex-col items-center w-full space-y-2 lg:space-y-4">
+                        {status === "Playing" ? (
+                            <>
+                                {/* Hidden input for mobile keyboard */}
+                                <input
+                                    ref={hiddenInput}
+                                    type="text"
+                                    className="opacity-0 h-0 w-0 absolute"
+                                    onBlur={focusInput}
+                                    onChange={(e) => {
+                                        const letter = e.target.value.slice(-1).toUpperCase();
+                                        if (/^[A-Z]$/.test(letter)) {
+                                            handleGuess(letter);
+                                        }
+                                        e.target.value = '';
+                                    }}
                                 />
-                            </div>
 
-                            {/* Show guessed letters grid on mobile */}
-                            <div className="block md:hidden mt-4">
-                                <GuessedLetters 
-                                    correctGuesses={correctGuesses}
-                                    incorrectGuesses={incorrectGuesses}
-                                />
-                            </div>
-
-                            <Scoreboard showButtons={false} />
-
-                            {/* Instructions */}
-                            <div className="text-center mt-8 px-4">
-                                <p className="mb-4 text-slate-300">
-                                    {window.innerWidth < 768 
-                                        ? "Use your phone's keyboard to make guesses."
-                                        : "Use your keyboard or click the letters above to make guesses."
-                                    }
-                                </p>
-                                <div className="hidden md:block space-y-2 text-sm text-slate-400">
-                                    <p><strong>F1:</strong> Open Help</p>
-                                    <p><strong>F2:</strong> Reveal Hint</p>
-                                    <p><strong>F5:</strong> Restart Game</p>
+                                <div className="w-full max-w-[350px] lg:max-w-none">
+                                    <Keyboard 
+                                        onGuess={handleGuess} 
+                                        guessedLetters={[...correctGuesses, ...incorrectGuesses]} 
+                                    />
                                 </div>
-                            </div>
 
-                            {/* Mobile Game Controls */}
-                            <GameControls onHint={handleHint} onReset={handleReset} />
-                        </>
-                    ) : (
-                        <Scoreboard status={status} />
-                    )}
+                                <Scoreboard showButtons={false} />
+
+                                {/* Game Controls */}
+                                <div className="mt-2 lg:mt-4">
+                                    <GameControls onHint={handleHint} onReset={handleReset} />
+                                </div>
+
+                                {/* Instructions */}
+                                <div className="text-center mt-4 px-4 w-full">
+                                    <p className="mb-2 text-sm text-slate-300">
+                                        {window.innerWidth < 1024 
+                                            ? "Use your phone's keyboard to make guesses"
+                                            : "Use your keyboard or click the letters above to make guesses"
+                                        }
+                                    </p>
+                                    <div className="hidden lg:block space-y-1 text-xs text-slate-400">
+                                        <p><strong>F1:</strong> Open Help</p>
+                                        <p><strong>F2:</strong> Reveal Hint</p>
+                                        <p><strong>F5:</strong> Restart Game</p>
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <Scoreboard status={status} />
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

@@ -19,68 +19,41 @@ const KeyboardButton = ({ onClick, children, className, disabled, ...props }) =>
 const StyledWrapper = styled.div`
   .base-button {
     border: none;
-    border-radius: 12px;
-    padding: 15px 30px;
+    border-radius: 8px;
+    padding: 8px 16px;
     color: #ffffff;
-    font-size: 20px;
+    font-size: 14px;
     font-family: "Orbitron", sans-serif;
     text-transform: uppercase;
     cursor: pointer;
-    transition: all 0.3s ease, box-shadow 0.3s ease;
+    transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
     display: inline-block;
-    margin: 20px;
+    margin: 8px;
     outline: none;
-  }
 
-  .base-button::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
-    transition: all 0.5s ease;
-    animation: slide 2s infinite linear;
-    pointer-events: none;
-  }
-
-  @keyframes slide {
-    0% {
-      left: -100%;
-    }
-    50% {
-      left: 100%;
-    }
-    100% {
-      left: -100%;
+    @media (min-width: 768px) {
+      padding: 12px 24px;
+      font-size: 16px;
+      margin: 12px;
+      border-radius: 10px;
     }
   }
 
-  .base-button:hover::before {
-    display: none;
+  .base-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
-  .base-button:active::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 300px;
-    height: 300px;
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 50%;
-    transform: scale(0);
-    transition: transform 0.4s ease-out, opacity 0.4s ease-out;
-    opacity: 0;
-    pointer-events: none;
+  .base-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
 
-  .base-button:active::after {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
+  .base-button:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: none;
   }
 
   /* Game UI Button Styles */
