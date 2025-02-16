@@ -16,7 +16,7 @@ function HelpPage() {
   return (
     <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-slate-900 to-slate-800 text-white">
       <Header />
-      <div className="bg-slate-800 p-8 rounded-lg shadow-xl mt-20 max-w-3xl mx-4 border border-slate-700">
+      <div className="bg-slate-800 p-8 rounded-lg shadow-xs mt-20 max-w-3xl mx-4 border border-slate-700">
         <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-cyan-400 to-blue-400 text-transparent bg-clip-text">How to Play Hangman</h2>
         
         <div className="space-y-6 text-slate-300">

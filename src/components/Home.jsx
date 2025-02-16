@@ -42,7 +42,7 @@ const HomePage = () => {
                 </div>
                 <Button 
                     onClick={handlePlay} 
-                    className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-12 py-3 rounded-lg text-lg font-semibold shadow-lg hover:from-cyan-600 hover:to-blue-600 transition-all duration-300"
+                    className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-12 py-3 rounded-lg text-lg font-semibold shadow-xs hover:from-cyan-600 hover:to-blue-600 transition-all duration-300"
                 >
                     Play Now
                 </Button>
