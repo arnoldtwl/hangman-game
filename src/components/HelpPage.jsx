@@ -14,78 +14,136 @@ function HelpPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-gradient-to-b from-slate-900 to-slate-800 text-white">
+    <div className="min-h-screen flex flex-col items-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-x-hidden relative">
+      {/* Background elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/10 rounded-full blur-[100px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyan-600/10 rounded-full blur-[100px]" />
+      </div>
+
       <Header />
-      <div className="bg-slate-800 p-8 rounded-lg shadow-xs mt-20 max-w-3xl mx-4 border border-slate-700">
-        <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-cyan-400 to-blue-400 text-transparent bg-clip-text">How to Play Hangman</h2>
-        
-        <div className="space-y-6 text-slate-300">
-          <section>
-            <h3 className="text-xl font-semibold text-cyan-400 mb-2">Basic Rules</h3>
-            <p>Guess the word letter by letter. Incorrect guesses will add a part to the hangman figure. Six incorrect guesses result in losing the game.</p>
-          </section>
 
-          <section>
-            <h3 className="text-xl font-semibold text-cyan-400 mb-2">Controls</h3>
-            <p className="mb-2">Use the on-screen keyboard or your physical keyboard to make guesses. You can also use the following shortcuts:</p>
-            <ul className="list-disc list-inside space-y-1">
-              <li><strong>F1:</strong> Open Help</li>
-              <li><strong>F2:</strong> Reveal a Hint (First 3 hints are free, then costs double each time)</li>
-              <li><strong>F5:</strong> Restart Game</li>
-            </ul>
-          </section>
-
-          <section>
-            <h3 className="text-xl font-semibold text-cyan-400 mb-2">Hint System</h3>
-            <ul className="list-disc list-inside space-y-1">
-              <li>First 3 hints are completely free</li>
-              <li>4th hint costs 10 points</li>
-              <li>5th hint costs 20 points</li>
-              <li>6th hint costs 40 points</li>
-              <li>Each subsequent hint doubles in cost</li>
-            </ul>
-          </section>
-
-          <section>
-            <h3 className="text-xl font-semibold text-cyan-400 mb-2">Points System</h3>
-            <ul className="list-disc list-inside space-y-1">
-              <li>1 point for each correct letter that appears once</li>
-              <li>2 points for each correct letter that appears twice</li>
-              <li>3 points for each correct letter that appears three or more times</li>
-              <li>50 points for completing a 3-4 letter word</li>
-              <li>100 points for completing a 5-6 letter word</li>
-              <li>150 points for completing a 7-8 letter word</li>
-              <li>200 points for completing a 9+ letter word</li>
-              <li>10 points for each correct guess that keeps the hangman alive</li>
-              <li>-5 points for each incorrect guess</li>
-            </ul>
-          </section>
-
-          <section>
-            <h3 className="text-xl font-semibold text-cyan-400 mb-2">Streak Multiplier</h3>
-            <ul className="list-disc list-inside space-y-1">
-              <li>1x multiplier for 1-2 consecutive correct guesses</li>
-              <li>2x multiplier for 3-4 consecutive correct guesses</li>
-              <li>3x multiplier for 5-6 consecutive correct guesses</li>
-              <li>4x multiplier for 7+ consecutive correct guesses</li>
-            </ul>
-          </section>
-
-          <p className="text-lg font-semibold text-cyan-400 mt-4">Good luck and have fun!</p>
+      <div className="relative z-10 w-full max-w-4xl mx-auto px-4 pt-24 pb-12 animate-fade-in-up">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl md:text-5xl font-black mb-4 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 text-transparent bg-clip-text drop-shadow-sm">
+            How to Play
+          </h2>
+          <p className="text-slate-400 text-lg">Master the rules and become a Hangman champion</p>
         </div>
 
-        <div className="mt-8 flex justify-center">
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Basic Rules */}
+          <div className="backdrop-blur-md bg-slate-900/40 border border-white/10 rounded-2xl p-6 shadow-xl hover:border-cyan-500/30 transition-colors">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-cyan-500/10 rounded-lg text-cyan-400">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-white">Basic Rules</h3>
+            </div>
+            <p className="text-slate-300 leading-relaxed">
+              Guess the word letter by letter. Incorrect guesses will add a part to the hangman figure.
+              <span className="text-red-400 font-semibold ml-1">6 incorrect guesses</span> result in losing the game.
+            </p>
+          </div>
+
+          {/* Controls */}
+          <div className="backdrop-blur-md bg-slate-900/40 border border-white/10 rounded-2xl p-6 shadow-xl hover:border-purple-500/30 transition-colors">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-white">Controls</h3>
+            </div>
+            <ul className="space-y-3 text-slate-300">
+              <li className="flex items-center justify-between border-b border-white/5 pb-2">
+                <span>Open Help</span>
+                <kbd className="px-2 py-1 bg-slate-800 rounded text-xs font-mono text-slate-400">F1</kbd>
+              </li>
+              <li className="flex items-center justify-between border-b border-white/5 pb-2">
+                <span>Reveal Hint</span>
+                <kbd className="px-2 py-1 bg-slate-800 rounded text-xs font-mono text-slate-400">F2</kbd>
+              </li>
+              <li className="flex items-center justify-between">
+                <span>Restart Game</span>
+                <kbd className="px-2 py-1 bg-slate-800 rounded text-xs font-mono text-slate-400">F5</kbd>
+              </li>
+            </ul>
+          </div>
+
+          {/* Hint System */}
+          <div className="backdrop-blur-md bg-slate-900/40 border border-white/10 rounded-2xl p-6 shadow-xl hover:border-yellow-500/30 transition-colors">
+            <h3 className="text-xl font-bold text-yellow-400 mb-4 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Hint System
+            </h3>
+            <ul className="space-y-3 text-slate-300">
+              <li className="flex items-start gap-3">
+                <span className="w-2 h-2 rounded-full bg-yellow-500 mt-2" />
+                <span>Hints reveal one random un-guessed letter.</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-2 h-2 rounded-full bg-yellow-500 mt-2" />
+                <span>Hints have a deferred cost deducted upon winning:</span>
+              </li>
+              <li className="ml-8 text-sm text-slate-400">
+                • 1st Hint: -5 points<br />
+                • 2nd Hint: -10 points<br />
+                • 3rd Hint: -15 points
+              </li>
+            </ul>
+          </div>
+
+          {/* Points System */}
+          <div className="backdrop-blur-md bg-slate-900/40 border border-white/10 rounded-2xl p-6 shadow-xl hover:border-green-500/30 transition-colors">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-green-500/10 rounded-lg text-green-400">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-white">Points & Multipliers</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <h4 className="font-semibold text-slate-200 mb-2">Points</h4>
+                <ul className="space-y-1 text-slate-400">
+                  <li>Correct Letter: +1-3</li>
+                  <li>Complete Word: +50-200</li>
+                  <li>Survival Bonus: +10</li>
+                  <li>Incorrect: -5</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold text-slate-200 mb-2">Streak</h4>
+                <ul className="space-y-1 text-slate-400">
+                  <li>1-2 Correct: 1x</li>
+                  <li>3-4 Correct: 2x</li>
+                  <li>5-6 Correct: 3x</li>
+                  <li>7+ Correct: 4x</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-12 flex justify-center">
           {isPlaying ? (
-            <Button 
+            <Button
               onClick={handleContinue}
-              className="game-ui-button bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
+              className="px-8 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg shadow-green-500/20 transform hover:scale-105 transition-all duration-200"
             >
               Continue Game
             </Button>
           ) : (
-            <Button 
+            <Button
               onClick={() => navigate('/')}
-              className="game-ui-button bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600"
+              className="px-8 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 shadow-lg shadow-cyan-500/20 transform hover:scale-105 transition-all duration-200"
             >
               Back to Home
             </Button>

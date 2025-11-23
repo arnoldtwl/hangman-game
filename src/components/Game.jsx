@@ -1,17 +1,18 @@
 import React, { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { makeGuess, gameWon, gameLost, revealHint, restartGame } from '../store/store';
 import HangmanFigure from './HangmanFigure';
 import Keyboard from './Keyboard';
 import WordToGuess from './WordToGuess';
 import Header from './Header';
 import Scoreboard from './Scoreboard';
-import GuessedLetters from './GuessedLetters';
 import GameControls from './GameControls';
 
 const Game = () => {
     const dispatch = useDispatch();
-    const { word, correctGuesses, incorrectGuesses, status, showHint, hint, hintsUsed } = useSelector((state) => state.hangman);
+    const navigate = useNavigate();
+    const { word, correctGuesses, incorrectGuesses, status, showHint, hint } = useSelector((state) => state.hangman);
     const hiddenInput = useRef(null);
 
     const handleGuess = (letter) => {
@@ -35,6 +36,24 @@ const Game = () => {
     // Handle physical keyboard input
     const handleKeyPress = (e) => {
         const key = e.key.toUpperCase();
+
+        // Handle Shortcuts
+        if (e.key === 'F1') {
+            e.preventDefault();
+            navigate('/help');
+            return;
+        }
+        if (e.key === 'F2') {
+            e.preventDefault();
+            handleHint();
+            return;
+        }
+        if (e.key === 'F5') {
+            e.preventDefault();
+            handleReset();
+            return;
+        }
+
         if (status === "Playing" && /^[A-Z]$/.test(key)) {
             handleGuess(key);
         }
@@ -48,14 +67,12 @@ const Game = () => {
     };
 
     useEffect(() => {
-        // Add keyboard event listener
         window.addEventListener('keydown', handleKeyPress);
-        // Focus input on mount
         focusInput();
         return () => {
             window.removeEventListener('keydown', handleKeyPress);
         };
-    }, []);
+    }, [status, navigate]); // Added navigate dependency
 
     useEffect(() => {
         if (incorrectGuesses.length === 6) {
@@ -66,36 +83,47 @@ const Game = () => {
     }, [correctGuesses, incorrectGuesses, word, dispatch]);
 
     return (
-        <div className="min-h-screen w-full bg-gradient-to-br from-indigo-950 via-purple-900 to-slate-900 text-white overflow-x-hidden">
-            <Header />
-            
-            {/* Score display at the top */}
-            <div className="w-full max-w-6xl mx-auto px-4 pt-20">
-                <div className="flex justify-end">
-                    <div className="w-[300px]">
-                        <Scoreboard showButtons={false} compact={true} />
-                    </div>
-                </div>
+        <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-x-hidden relative">
+            {/* Background elements */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+                <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[100px]" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/10 rounded-full blur-[100px]" />
             </div>
 
-            <div className="w-full max-w-6xl mx-auto px-2 pt-4 pb-4 lg:px-4 lg:pb-8">
-                <div className="grid lg:grid-cols-2 gap-4 lg:gap-8 items-start">
-                    <div className="flex flex-col items-center w-full space-y-2 lg:space-y-4">
-                        <div className="w-full max-w-[280px] lg:max-w-none">
-                            <HangmanFigure />
-                        </div>
-                        <WordToGuess />
-                        {showHint && (
-                            <div className="hint text-center mt-1 text-sm lg:text-lg text-cyan-400">
-                                {hint}
+            <Header />
+
+            <div className="relative z-10 w-full max-w-7xl mx-auto px-4 pt-32 pb-8 flex flex-col lg:flex-row gap-8 items-start justify-center">
+
+                {/* Left Column: Game Area */}
+                <div className="w-full lg:w-2/3 flex flex-col gap-6">
+                    {/* Main Game Card */}
+                    <div className="backdrop-blur-md bg-slate-900/40 border border-white/10 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 opacity-50" />
+
+                        <div className="flex flex-col items-center gap-8 py-4">
+                            <div className="transform scale-90 lg:scale-100 transition-transform duration-300">
+                                <HangmanFigure />
                             </div>
-                        )}
+
+                            <div className="w-full flex flex-col items-center gap-4">
+                                <WordToGuess />
+
+                                {showHint && (
+                                    <div className="animate-fade-in px-4 py-2 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-yellow-200 text-sm lg:text-base font-medium flex items-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                        </svg>
+                                        Hint: {hint}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="flex flex-col items-center w-full space-y-2 lg:space-y-4">
+                    {/* Controls & Keyboard */}
+                    <div className="backdrop-blur-md bg-slate-900/40 border border-white/10 rounded-2xl p-6 shadow-xl">
                         {status === "Playing" ? (
                             <>
-                                {/* Hidden input for mobile keyboard */}
                                 <input
                                     ref={hiddenInput}
                                     type="text"
@@ -110,69 +138,40 @@ const Game = () => {
                                     }}
                                 />
 
-                                <div className="w-full max-w-[350px] lg:max-w-none">
-                                    <Keyboard 
-                                        onGuess={handleGuess} 
-                                        guessedLetters={[...correctGuesses, ...incorrectGuesses]} 
+                                <div className="flex flex-col gap-6">
+                                    <Keyboard
+                                        onGuess={handleGuess}
+                                        guessedLetters={[...correctGuesses, ...incorrectGuesses]}
                                     />
-                                </div>
 
-                                {/* Game Controls */}
-                                <div className="mt-2 lg:mt-4">
-                                    <GameControls onHint={handleHint} onReset={handleReset} />
-                                </div>
-
-                                {/* Instructions */}
-                                <div className="text-center mt-4 px-4 w-full">
-                                    <p className="mb-2 text-sm text-slate-300">
-                                        {window.innerWidth < 1024 
-                                            ? "Use your phone's keyboard to make guesses"
-                                            : "Use your keyboard or click the letters above to make guesses"
-                                        }
-                                    </p>
-                                    <div className="hidden lg:block space-y-1 text-xs text-slate-400">
-                                        <p><strong>F1:</strong> Open Help</p>
-                                        <p><strong>F2:</strong> Reveal Hint</p>
-                                        <p><strong>F5:</strong> Restart Game</p>
+                                    <div className="border-t border-white/5 pt-4">
+                                        <GameControls onHint={handleHint} onReset={handleReset} />
                                     </div>
                                 </div>
                             </>
                         ) : (
-                            <div className="text-center mt-4">
-                                <div className="text-3xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-400 text-transparent bg-clip-text">
+                            <div className="text-center py-8">
+                                <h3 className="text-3xl font-bold mb-2 bg-gradient-to-r from-cyan-400 to-blue-400 text-transparent bg-clip-text">
                                     {status}
-                                </div>
+                                </h3>
                                 {status === "You have lost!" && (
-                                    <div className="text-xl mb-4">
-                                        The word was:{' '}
-                                        <span className="font-bold bg-gradient-to-r from-red-500 to-red-600 text-transparent bg-clip-text">
-                                            {word}
-                                        </span>
-                                    </div>
+                                    <p className="text-xl text-slate-300 mb-8">
+                                        The word was: <span className="font-bold text-red-400">{word}</span>
+                                    </p>
                                 )}
-                                <div className="mt-8 space-x-4">
+
+                                <div className="flex justify-center gap-4">
                                     {status === "You have won!" ? (
-                                        <>
-                                            <button
-                                                onClick={handlePlay}
-                                                className="px-6 py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-xs shadow-purple-500/20"
-                                                aria-label="Continue"
-                                            >
-                                                Continue
-                                            </button>
-                                            <button
-                                                onClick={handleReset}
-                                                className="px-6 py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-xs shadow-green-500/20"
-                                                aria-label="Reset"
-                                            >
-                                                Reset
-                                            </button>
-                                        </>
+                                        <button
+                                            onClick={handlePlay}
+                                            className="px-8 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg shadow-green-500/20 transform hover:scale-105 transition-all duration-200"
+                                        >
+                                            Continue Playing
+                                        </button>
                                     ) : (
                                         <button
                                             onClick={handleReset}
-                                            className="px-6 py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-xs shadow-red-500/20"
-                                            aria-label="Play Again"
+                                            className="px-8 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 shadow-lg shadow-cyan-500/20 transform hover:scale-105 transition-all duration-200"
                                         >
                                             Play Again
                                         </button>
@@ -180,6 +179,37 @@ const Game = () => {
                                 </div>
                             </div>
                         )}
+                    </div>
+                </div>
+
+                {/* Right Column: Scoreboard */}
+                <div className="w-full lg:w-1/3">
+                    <div className="sticky top-24">
+                        <Scoreboard showButtons={false} compact={false} />
+
+                        {/* Instructions Card */}
+                        <div className="mt-6 backdrop-blur-md bg-slate-900/40 border border-white/10 rounded-2xl p-6 shadow-xl">
+                            <h4 className="text-lg font-semibold text-cyan-400 mb-4 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                </svg>
+                                Quick Tips
+                            </h4>
+                            <ul className="space-y-2 text-sm text-slate-400">
+                                <li className="flex items-start gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 mt-1.5" />
+                                    Use keyboard or click letters
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 mt-1.5" />
+                                    F1 for Help, F2 for Hint
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 mt-1.5" />
+                                    Hints cost points!
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>

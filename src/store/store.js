@@ -12,6 +12,7 @@ const initialState = {
     showHelp: false,
     showHint: false,
     hintsUsed: 0,
+    hintPenalty: 0, // New state to track accumulated penalty
     maxHints: 3,
     points: 0,
     streak: 0,
@@ -56,6 +57,7 @@ const hangmanSlice = createSlice({
             state.status = "Playing";
             state.showHint = false;
             state.hintsUsed = 0;
+            state.hintPenalty = 0; // Reset penalty
             state.streak = 0;
             if (!state.lastGameWon) {
                 state.points = 0;
@@ -69,16 +71,17 @@ const hangmanSlice = createSlice({
                 hint,
                 correctGuesses: [],
                 incorrectGuesses: [],
-                status: 'Playing', 
-                points: 0, 
+                status: 'Playing',
+                points: 0,
                 hintsUsed: 0,
+                hintPenalty: 0, // Reset penalty
                 showHint: false,
-                highScore: state.highScore, 
+                highScore: state.highScore,
             };
         },
         setNotStarted: (state) => {
             state.status = "Not Started";
-            state.points = 0; 
+            state.points = 0;
         },
         toggleHelp: (state) => {
             state.showHelp = !state.showHelp;
@@ -90,6 +93,9 @@ const hangmanSlice = createSlice({
             else if (wordLength >= 5 && wordLength <= 6) state.points += 100;
             else if (wordLength >= 7 && wordLength <= 8) state.points += 150;
             else if (wordLength >= 9) state.points += 200;
+
+            // Deduct accumulated hint penalty
+            state.points -= state.hintPenalty;
 
             if (state.points > state.highScore) {
                 state.highScore = state.points;
@@ -106,21 +112,15 @@ const hangmanSlice = createSlice({
         revealHint: (state) => {
             const unrevealedLetters = state.word.split('').filter(letter => !state.correctGuesses.includes(letter) && letter !== ' ');
             if (unrevealedLetters.length > 0) {
-                if (state.hintsUsed < 3) {
-                    // First three hints are free
-                    const hintLetter = unrevealedLetters[Math.floor(Math.random() * unrevealedLetters.length)];
-                    state.correctGuesses.push(hintLetter);
-                    state.hintsUsed += 1;
-                } else {
-                    // Calculate cost for subsequent hints (doubles each time)
-                    const hintCost = 10 * Math.pow(2, state.hintsUsed - 3);
-                    if (state.points >= hintCost) {
-                        const hintLetter = unrevealedLetters[Math.floor(Math.random() * unrevealedLetters.length)];
-                        state.correctGuesses.push(hintLetter);
-                        state.hintsUsed += 1;
-                        state.points -= hintCost;
-                    }
-                }
+                // Calculate cost: 5 * (hintsUsed + 1)
+                // 1st hint: 5, 2nd: 10, 3rd: 15...
+                const currentHintCost = 5 * (state.hintsUsed + 1);
+
+                const hintLetter = unrevealedLetters[Math.floor(Math.random() * unrevealedLetters.length)];
+                state.correctGuesses.push(hintLetter);
+
+                state.hintsUsed += 1;
+                state.hintPenalty += currentHintCost;
             }
         },
     },
