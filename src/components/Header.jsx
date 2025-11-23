@@ -1,24 +1,35 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import Logo from './Logo';
 
 function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isHelpPage = location.pathname === '/help';
 
   return (
-    <header className="fixed top-0 left-0 right-0 flex justify-between items-center px-3 py-2 bg-gradient-to-r from-blue-900 via-indigo-900 to-violet-900 shadow-xs z-50">
-      <button
+    <header className="fixed top-0 left-0 right-0 flex justify-between items-center px-6 py-4 z-50 backdrop-blur-md bg-slate-900/70 border-b border-white/10 shadow-lg transition-all duration-300">
+      <div
         onClick={() => navigate('/')}
-        className="text-lg font-bold text-white bg-gradient-to-r from-blue-500 to-indigo-500 px-3 py-1 rounded-md hover:from-blue-600 hover:to-indigo-600 transition-all duration-300 shadow-xs"
+        className="cursor-pointer hover:opacity-90 transition-opacity"
       >
-        HANGMAN
-      </button>
-      
-      <button
-        onClick={() => navigate('/help')}
-        className="text-sm text-white bg-gradient-to-r from-amber-500 to-orange-500 px-2 py-1 rounded-md hover:from-amber-600 hover:to-orange-600 transition-all duration-300 shadow-xs"
-      >
-        HELP
-      </button>
+        <Logo />
+      </div>
+
+      {!isHelpPage && (
+        <button
+          onClick={() => navigate('/help')}
+          className="group relative px-4 py-2 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 border border-white/10 hover:border-cyan-500/50 transition-all duration-300 overflow-hidden"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <span className="relative flex items-center gap-2 text-sm font-semibold text-slate-300 group-hover:text-cyan-400 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            HELP
+          </span>
+        </button>
+      )}
     </header>
   );
 }
