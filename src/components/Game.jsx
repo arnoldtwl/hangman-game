@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { makeGuess, gameWon, gameLost, revealHint, restartGame } from '../store/store';
+import { makeGuess, gameWon, gameLost, revealHint, restartGame, toggleHint } from '../store/store';
 import HangmanFigure from './HangmanFigure';
 import Keyboard from './Keyboard';
 import WordToGuess from './WordToGuess';
@@ -27,6 +27,10 @@ const Game = () => {
 
     const handleReset = () => {
         dispatch(restartGame());
+    };
+
+    const handleToggleHint = () => {
+        dispatch(toggleHint());
     };
 
     const handlePlay = () => {
@@ -62,7 +66,7 @@ const Game = () => {
     // Focus hidden input on mobile
     const focusInput = () => {
         if (hiddenInput.current) {
-            hiddenInput.current.focus();
+            hiddenInput.current.focus({ preventScroll: true });
         }
     };
 
@@ -102,18 +106,20 @@ const Game = () => {
 
                         <div className="flex flex-col items-center gap-8 py-4">
                             <div className="transform scale-90 lg:scale-100 transition-transform duration-300">
-                                <HangmanFigure />
+                                <HangmanFigure onClick={handleToggleHint} />
                             </div>
 
                             <div className="w-full flex flex-col items-center gap-4">
                                 <WordToGuess />
 
                                 {showHint && (
-                                    <div className="animate-fade-in px-4 py-2 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-yellow-200 text-sm lg:text-base font-medium flex items-center gap-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                                        </svg>
-                                        Hint: {hint}
+                                    <div className="animate-fade-in px-6 py-3 bg-cyan-500/10 border border-cyan-500/20 rounded-xl text-cyan-100 text-sm lg:text-base font-medium flex items-center gap-3 backdrop-blur-sm shadow-lg shadow-cyan-500/5 max-w-2xl text-center">
+                                        <div className="bg-cyan-500/20 p-2 rounded-lg">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-cyan-400" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <span><strong className="text-cyan-400 uppercase tracking-wider text-xs block mb-1">Riddle Hint</strong> {hint}</span>
                                     </div>
                                 )}
                             </div>
