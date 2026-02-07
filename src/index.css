@@ -2,7 +2,7 @@
 
 
 /* Base styles */
-{
+    {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
@@ -42,13 +42,18 @@ button:focus {
     }
 }
 
+.animate-fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+}
+
 .figure-part {
     animation: fadeIn 0.5s ease-in-out forwards;
 }
 
-.hangman-container, .homepage-container {
-    background-color: #1a202c; 
-    color: #e2e8f0; 
+.hangman-container,
+.homepage-container {
+    background-color: #1a202c;
+    color: #e2e8f0;
     padding-top: 70px;
     width: 100%;
     overflow-x: hidden;
@@ -71,7 +76,7 @@ button:focus {
 }
 
 .word-to-guess span {
-    opacity: 1; 
+    opacity: 1;
     color: #e2e8f0;
 }
 
@@ -230,7 +235,7 @@ button:focus {
 /* Points display styles */
 .points-display {
     position: fixed;
-    top: 150px; 
+    top: 150px;
     right: 16px;
     padding: 10px;
     background-color: #2d3748;
@@ -251,7 +256,8 @@ button:focus {
     font-size: 2rem;
 }
 
-.help-content p, .help-content ul {
+.help-content p,
+.help-content ul {
     margin-bottom: 1.5rem;
 }
 
@@ -289,6 +295,7 @@ button:focus {
 }
 
 @media (min-width: 1024px) {
+
     .help-button,
     .hint-button,
     .reset-button {
@@ -344,6 +351,7 @@ button:focus {
     .keyboard-row {
         gap: 0.125rem;
     }
+
     .game-controls {
         gap: 0.5rem;
     }

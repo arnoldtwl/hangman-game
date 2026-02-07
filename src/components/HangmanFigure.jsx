@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 
-function HangmanFigure() {
+function HangmanFigure({ onClick }) {
   const { incorrectGuesses, status } = useSelector((state) => state.hangman);
   const maxIncorrectGuesses = 6;
   const [visibleParts, setVisibleParts] = useState(0);
@@ -21,7 +21,11 @@ function HangmanFigure() {
   }, [status, incorrectGuesses.length]);
 
   return (
-    <div className="flex justify-center mt-4 relative">
+    <div
+      className={`flex justify-center mt-4 relative transition-all duration-300 pointer-events-auto bg-transparent ${status === 'Playing' ? 'cursor-pointer hover:scale-105 active:scale-95' : ''}`}
+      onClick={status === 'Playing' ? onClick : undefined}
+      title={status === 'Playing' ? "Click for a riddle hint!" : ""}
+    >
       {/* Glow effect background */}
       <div className="absolute inset-0 bg-cyan-500/5 blur-3xl rounded-full transform scale-150" />
 
