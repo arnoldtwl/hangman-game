@@ -5,7 +5,6 @@ import { makeGuess, gameWon, gameLost, revealHint, restartGame, toggleHint } fro
 import HangmanFigure from './HangmanFigure';
 import Keyboard from './Keyboard';
 import WordToGuess from './WordToGuess';
-import Header from './Header';
 import Scoreboard from './Scoreboard';
 import GameControls from './GameControls';
 
@@ -94,7 +93,7 @@ const Game = () => {
                 <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/10 rounded-full blur-[100px]" />
             </div>
 
-            <Header />
+
 
             <div className="relative z-10 w-full max-w-7xl mx-auto px-4 pt-32 pb-8 flex flex-col lg:flex-row gap-8 items-start justify-center">
 
