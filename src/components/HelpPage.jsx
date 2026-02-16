@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import Header from './Header';
 import Button from '../utils/Button';
 
 function HelpPage() {
@@ -21,7 +20,7 @@ function HelpPage() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyan-600/10 rounded-full blur-[100px]" />
       </div>
 
-      <Header />
+
 
       <div className="relative z-10 w-full max-w-4xl mx-auto px-4 pt-24 pb-12 animate-fade-in-up">
         <div className="text-center mb-12">

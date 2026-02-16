@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { setNotStarted, resetGame } from '../store/store';
-import Header from './Header';
 import HangmanFigure from './HangmanFigure';
 import Button from '../utils/Button';
 import { Link, useNavigate } from 'react-router-dom';
@@ -27,14 +26,14 @@ const HomePage = () => {
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyan-600/20 rounded-full blur-[100px]" />
             </div>
 
-            <Header />
+
 
             <div className="relative z-10 flex flex-col items-center w-full max-w-4xl px-4 animate-fade-in-up">
                 <div className="mb-12 transform hover:scale-105 transition-transform duration-500">
                     <HangmanFigure />
                 </div>
 
-                <div className="text-center max-w-2xl mx-auto space-y-8 backdrop-blur-sm bg-slate-900/30 p-8 rounded-2xl border border-white/5 shadow-2xl">
+                <div className="text-center max-w-2xl mx-auto space-y-8 backdrop-blur-sm bg-slate-900/30 p-8 rounded-2xl border border-white/5 shadow-2xl mb-12">
                     <h2 className="text-5xl font-black mb-6 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 text-transparent bg-clip-text drop-shadow-sm">
                         Ready to Play?
                     </h2>

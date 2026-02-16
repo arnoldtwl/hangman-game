@@ -5,15 +5,24 @@ import Game from './components/Game';
 import HelpPage from './components/HelpPage';
 import HomePage from './components/Home';
 
+import Footer from './components/Footer';
+import Header from './components/Header';
+
 function App() {
-  
+
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/game" element={<Game />} />
-        <Route path="/help" element={<HelpPage />} />
-      </Routes>
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <div className="flex-grow">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/game" element={<Game />} />
+            <Route path="/help" element={<HelpPage />} />
+          </Routes>
+        </div>
+        <Footer />
+      </div>
     </Router>
   );
 }
