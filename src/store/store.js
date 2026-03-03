@@ -26,6 +26,11 @@ const hangmanSlice = createSlice({
     reducers: {
         makeGuess: (state, action) => {
             const letter = action.payload;
+
+            // Prevent duplicate guesses from artificially adding points or penalties
+            if (state.correctGuesses.includes(letter) || state.incorrectGuesses.includes(letter)) {
+                return;
+            }
             if (state.word.includes(letter)) {
                 state.correctGuesses.push(letter);
                 const letterCount = state.word.split('').filter(l => l === letter).length;
