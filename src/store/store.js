@@ -109,6 +109,7 @@ const hangmanSlice = createSlice({
         },
         gameLost: (state) => {
             state.status = "You have lost!";
+            state.points = 0;
             state.lastGameWon = false;
         },
         toggleHint: (state) => {
