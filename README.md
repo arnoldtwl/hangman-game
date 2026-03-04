@@ -47,6 +47,7 @@ This is a modern implementation of the classic Hangman game. The game features a
 - 10 points for each correct guess that keeps the hangman alive
 - -5 points for each incorrect guess
 - -10 points for using a hint
+- **Losing the game resets your current score to 0** (High Score is retained)
 
 ## Features
 
@@ -62,11 +63,9 @@ This project was migrated from Create React App to Vite for faster builds and im
 
 ## Future Enhancements
 
+- **Full Dictionary API Integration**: Replace the static category lists with dynamic word generation using the [Random Word API](https://random-word-api.herokuapp.com/word) for words and [Free Dictionary API](https://api.dictionaryapi.dev/api/v2/entries/en/) to provide definitions as hints.
 - **Difficulty Levels**: Introduce different difficulty levels with more complex words and fewer attempts.
-- **Multiplayer Support**: Implement a multiplayer mode where users can play against each other or cooperate to guess the word.
 - **Sound Effects**: Add sound effects for correct guesses, incorrect guesses, winning, and losing.
-- **Leaderboard**: Implement a leaderboard that tracks the best scores or fastest times.
-- **Custom Words**: Allow users to enter custom words or phrases for others to guess.
 - **Word Categories**: Allow players to choose categories of words, such as animals, countries, movies, etc.
 - **Progress Save**: Enable users to save and continue their game later.
 - **Accessibility**: Ensure the game is fully accessible, including keyboard navigation, screen reader support, and color contrast.
