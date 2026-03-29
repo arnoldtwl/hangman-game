@@ -1,6 +1,8 @@
 import {
+  clearSavedGame,
   createAppStore,
   gameWon,
+  loadSavedGame,
   makeGuess,
   resetGame,
   restartGame,
@@ -151,5 +153,39 @@ describe('hangman store async rounds', () => {
     expect(store.getState().hangman.points).toBe(winningScore);
     expect(store.getState().hangman.roundSource).toBe('api');
     expect(store.getState().hangman.difficulty).toBe('easy');
+  });
+
+  test('hydrates and clears saved game state', () => {
+    const store = createAppStore();
+
+    store.dispatch(loadSavedGame({
+      word: 'BANANA',
+      hint: 'A long curved fruit.',
+      correctGuesses: ['B'],
+      incorrectGuesses: ['X'],
+      status: 'Playing',
+      showHint: true,
+      hintsUsed: 1,
+      hintPenalty: 5,
+      points: 12,
+      streak: 1,
+      highScore: 25,
+      difficulty: 'medium',
+      maxIncorrectGuesses: 6,
+      roundSource: 'api',
+      lastGameWon: false,
+    }));
+
+    expect(store.getState().hangman).toMatchObject({
+      word: 'BANANA',
+      correctGuesses: ['B'],
+      incorrectGuesses: ['X'],
+      hasSavedProgress: true,
+      status: 'Playing',
+    });
+
+    store.dispatch(clearSavedGame());
+
+    expect(store.getState().hangman.hasSavedProgress).toBe(false);
   });
 });

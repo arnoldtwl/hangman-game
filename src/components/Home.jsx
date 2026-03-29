@@ -1,25 +1,45 @@
 import React, { startTransition, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setNotStarted, resetGame, setDifficulty } from '../store/store';
+import { clearSavedGame, loadSavedGame, resetGame, setDifficulty, setNotStarted } from '../store/store';
 import HangmanFigure from './HangmanFigure';
 import Button from '../utils/Button';
 import { Link, useNavigate } from 'react-router-dom';
 import { DIFFICULTY_CONFIG } from '../config/difficulty';
 import { useAudio } from '../audio/AudioProvider';
+import { clearSavedProgress, loadSavedProgress } from '../persistence/progressSave';
 
 const HomePage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { isLoadingRound, difficulty, maxIncorrectGuesses } = useSelector((state) => state.hangman);
+    const { isLoadingRound, difficulty, maxIncorrectGuesses, hasSavedProgress, status } = useSelector((state) => state.hangman);
     const { markInteracted } = useAudio();
 
     useEffect(() => {
-        dispatch(setNotStarted());
-    }, [dispatch]);
+        if (!hasSavedProgress && !isLoadingRound && status !== 'Not Started') {
+            dispatch(setNotStarted());
+        }
+    }, [dispatch, hasSavedProgress, isLoadingRound, status]);
 
     const handlePlay = () => {
         markInteracted();
+        clearSavedProgress();
+        dispatch(clearSavedGame());
         dispatch(resetGame());
+        startTransition(() => {
+            navigate('/game');
+        });
+    };
+
+    const handleResume = () => {
+        const savedProgress = loadSavedProgress();
+
+        if (!savedProgress) {
+            dispatch(clearSavedGame());
+            return;
+        }
+
+        markInteracted();
+        dispatch(loadSavedGame(savedProgress.game));
         startTransition(() => {
             navigate('/game');
         });
@@ -57,6 +77,30 @@ const HomePage = () => {
                     </div>
 
                     <div className="pt-4 flex flex-col items-center gap-6">
+                        {hasSavedProgress && (
+                            <div className="w-full rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-5 text-left shadow-lg shadow-emerald-500/5">
+                                <p className="text-xs uppercase tracking-[0.3em] text-emerald-300">Saved Progress</p>
+                                <h3 className="mt-3 text-2xl font-bold text-white">Continue where you left off</h3>
+                                <p className="mt-2 text-sm text-slate-300">
+                                    Resume your current round or start a brand-new game.
+                                </p>
+                                <div className="mt-5 flex flex-wrap gap-3">
+                                    <Button
+                                        onClick={handleResume}
+                                        className="px-6 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-emerald-500 to-green-600 shadow-lg shadow-emerald-500/20"
+                                    >
+                                        Resume Game
+                                    </Button>
+                                    <Button
+                                        onClick={handlePlay}
+                                        className="px-6 py-3 rounded-xl font-bold text-white bg-slate-800/70 border border-white/10"
+                                    >
+                                        New Game
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+
                         <div className="w-full space-y-4">
                             <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">Choose Difficulty</p>
                             <div className="grid gap-3 md:grid-cols-3">
@@ -90,22 +134,24 @@ const HomePage = () => {
                             </div>
                         </div>
 
-                        <Button
-                            onClick={handlePlay}
-                            disabled={isLoadingRound}
-                            className="group relative px-12 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl font-bold text-xl shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-105 transition-all duration-300 overflow-hidden"
-                        >
-                            <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                            <span className="relative flex items-center gap-3">
-                                {isLoadingRound ? 'LOADING ROUND...' : 'PLAY NOW'}
-                                {!isLoadingRound && (
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                )}
-                            </span>
-                        </Button>
+                        {!hasSavedProgress && (
+                            <Button
+                                onClick={handlePlay}
+                                disabled={isLoadingRound}
+                                className="group relative px-12 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl font-bold text-xl shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-105 transition-all duration-300 overflow-hidden"
+                            >
+                                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                                <span className="relative flex items-center gap-3">
+                                    {isLoadingRound ? 'LOADING ROUND...' : 'PLAY NOW'}
+                                    {!isLoadingRound && (
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    )}
+                                </span>
+                            </Button>
+                        )}
 
                         {isLoadingRound && (
                             <p className="text-sm text-cyan-300 tracking-wide">

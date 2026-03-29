@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import App from './App';
 import { createAppStore } from './store/store';
 import { SOUND_STORAGE_KEY } from './audio/AudioProvider';
+import { PROGRESS_SAVE_STORAGE_KEY, PROGRESS_SAVE_VERSION } from './persistence/progressSave';
 
 function createJsonResponse(body, ok = true, status = 200) {
   return {
@@ -21,6 +22,32 @@ function createDeferred() {
   });
 
   return { promise, resolve };
+}
+
+function seedSavedProgress(overrides = {}) {
+  const payload = {
+    version: PROGRESS_SAVE_VERSION,
+    game: {
+      word: 'BANANA',
+      hint: 'A long curved fruit.',
+      correctGuesses: ['B'],
+      incorrectGuesses: ['X'],
+      status: 'Playing',
+      showHint: false,
+      hintsUsed: 0,
+      hintPenalty: 0,
+      points: 12,
+      streak: 1,
+      highScore: 25,
+      difficulty: 'medium',
+      maxIncorrectGuesses: 6,
+      roundSource: 'api',
+      lastGameWon: false,
+      ...overrides,
+    },
+  };
+
+  window.localStorage.setItem(PROGRESS_SAVE_STORAGE_KEY, JSON.stringify(payload));
 }
 
 beforeEach(() => {
@@ -257,4 +284,109 @@ test('muted state suppresses gameplay audio', async () => {
   await user.click(screen.getByRole('button', { name: /^B$/i }));
 
   expect(window.HTMLMediaElement.prototype.play).not.toHaveBeenCalled();
+});
+
+test('shows resume prompt and restores a saved in-progress game', async () => {
+  seedSavedProgress();
+  const store = createAppStore();
+  const user = userEvent.setup();
+
+  render(
+    <Provider store={store}>
+      <App />
+    </Provider>,
+  );
+
+  expect(screen.getByText(/Continue where you left off/i)).toBeInTheDocument();
+
+  await user.click(screen.getByRole('button', { name: /resume game/i }));
+
+  expect(await screen.findByText(/5 of 6 chances left/i)).toBeInTheDocument();
+  expect(screen.getByText(/12/)).toBeInTheDocument();
+});
+
+test('new game clears saved progress and starts fresh', async () => {
+  seedSavedProgress();
+  const store = createAppStore();
+  const user = userEvent.setup();
+
+  global.fetch = vi.fn((url) => {
+    if (url.includes('random-word-api')) {
+      return Promise.resolve(createJsonResponse(['banana']));
+    }
+
+    if (url.includes('/entries/en/banana')) {
+      return Promise.resolve(createJsonResponse([
+        {
+          meanings: [
+            {
+              definitions: [{ definition: 'A long curved fruit.' }],
+            },
+          ],
+        },
+      ]));
+    }
+
+    return Promise.reject(new Error(`Unexpected URL: ${url}`));
+  });
+
+  render(
+    <Provider store={store}>
+      <App />
+    </Provider>,
+  );
+
+  await user.click(screen.getByRole('button', { name: /new game/i }));
+  await screen.findByText(/6 chances left/i);
+
+  expect(window.localStorage.getItem(PROGRESS_SAVE_STORAGE_KEY)).toBeNull();
+  expect(screen.queryByText(/Continue where you left off/i)).not.toBeInTheDocument();
+});
+
+test('does not save a fresh round before any letters are guessed', async () => {
+  const firstStore = createAppStore();
+  const user = userEvent.setup();
+
+  global.fetch = vi.fn((url) => {
+    if (url.includes('random-word-api')) {
+      return Promise.resolve(createJsonResponse(['banana']));
+    }
+
+    if (url.includes('/entries/en/banana')) {
+      return Promise.resolve(createJsonResponse([
+        {
+          meanings: [
+            {
+              definitions: [{ definition: 'A long curved fruit.' }],
+            },
+          ],
+        },
+      ]));
+    }
+
+    return Promise.reject(new Error(`Unexpected URL: ${url}`));
+  });
+
+  const { unmount } = render(
+    <Provider store={firstStore}>
+      <App />
+    </Provider>,
+  );
+
+  await user.click(screen.getByRole('button', { name: /play now/i }));
+  await screen.findByText(/6 chances left/i);
+
+  expect(window.localStorage.getItem(PROGRESS_SAVE_STORAGE_KEY)).toBeNull();
+
+  unmount();
+  window.history.pushState({}, '', '/');
+
+  const secondStore = createAppStore();
+  render(
+    <Provider store={secondStore}>
+      <App />
+    </Provider>,
+  );
+
+  expect(screen.queryByText(/Continue where you left off/i)).not.toBeInTheDocument();
 });

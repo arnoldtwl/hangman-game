@@ -2,6 +2,7 @@ import { configureStore, createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { getRandomWordWithHints } from "../utils/utils";
 import { getPlayableWordWithHint } from "../services/wordService";
 import { DEFAULT_DIFFICULTY, getDifficultyConfig } from "../config/difficulty";
+import { loadSavedProgress } from "../persistence/progressSave";
 
 const fallbackWordWithHint = getRandomWordWithHints(undefined, DEFAULT_DIFFICULTY);
 
@@ -55,31 +56,36 @@ export const restartGame = createAsyncThunk(
     },
 );
 
-const initialState = {
-    word: fallbackWordWithHint.word,
-    hint: fallbackWordWithHint.hint,
-    correctGuesses: [],
-    incorrectGuesses: [],
-    status: "Not Started",
-    showHelp: false,
-    showHint: false,
-    hintsUsed: 0,
-    hintPenalty: 0,
-    maxHints: 3,
-    points: 0,
-    streak: 0,
-    highScore: 0,
-    lastGameWon: false,
-    isLoadingRound: false,
-    roundSource: null,
-    roundError: null,
-    difficulty: DEFAULT_DIFFICULTY,
-    maxIncorrectGuesses: getDifficultyConfig(DEFAULT_DIFFICULTY).maxIncorrectGuesses,
+const createInitialState = () => {
+    const savedProgress = loadSavedProgress();
+
+    return {
+        word: fallbackWordWithHint.word,
+        hint: fallbackWordWithHint.hint,
+        correctGuesses: [],
+        incorrectGuesses: [],
+        status: "Not Started",
+        showHelp: false,
+        showHint: false,
+        hintsUsed: 0,
+        hintPenalty: 0,
+        maxHints: 3,
+        points: 0,
+        streak: 0,
+        highScore: 0,
+        lastGameWon: false,
+        isLoadingRound: false,
+        roundSource: null,
+        roundError: null,
+        difficulty: DEFAULT_DIFFICULTY,
+        maxIncorrectGuesses: getDifficultyConfig(DEFAULT_DIFFICULTY).maxIncorrectGuesses,
+        hasSavedProgress: Boolean(savedProgress),
+    };
 };
 
 const hangmanSlice = createSlice({
     name: "hangman",
-    initialState,
+    initialState: createInitialState(),
     reducers: {
         makeGuess: (state, action) => {
             const letter = action.payload;
@@ -116,6 +122,21 @@ const hangmanSlice = createSlice({
             state.isLoadingRound = false;
             state.roundSource = null;
             state.roundError = null;
+        },
+        loadSavedGame: (state, action) => {
+            Object.assign(state, {
+                ...state,
+                ...action.payload,
+                isLoadingRound: false,
+                roundError: null,
+                hasSavedProgress: true,
+            });
+        },
+        clearSavedGame: (state) => {
+            state.hasSavedProgress = false;
+        },
+        setHasSavedProgress: (state, action) => {
+            state.hasSavedProgress = action.payload;
         },
         setDifficulty: (state, action) => {
             const difficulty = action.payload;
@@ -174,6 +195,7 @@ const hangmanSlice = createSlice({
                     highScore: state.highScore,
                     lastGameWon: false,
                     difficulty: state.difficulty,
+                    hasSavedProgress: false,
                 });
             })
             .addCase(resetGame.fulfilled, (state, action) => {
@@ -186,6 +208,7 @@ const hangmanSlice = createSlice({
                     roundError: action.payload.error ?? null,
                     difficulty: action.payload.difficulty,
                     maxIncorrectGuesses: getDifficultyConfig(action.payload.difficulty).maxIncorrectGuesses,
+                    hasSavedProgress: false,
                 });
             })
             .addCase(resetGame.rejected, (state, action) => {
@@ -201,6 +224,7 @@ const hangmanSlice = createSlice({
                     highScore: state.highScore,
                     lastGameWon: false,
                     difficulty,
+                    hasSavedProgress: false,
                 });
             })
             .addCase(restartGame.pending, (state) => {
@@ -210,6 +234,7 @@ const hangmanSlice = createSlice({
                     highScore: state.highScore,
                     lastGameWon: state.lastGameWon,
                     difficulty: state.difficulty,
+                    hasSavedProgress: false,
                 });
             })
             .addCase(restartGame.fulfilled, (state, action) => {
@@ -223,6 +248,7 @@ const hangmanSlice = createSlice({
                     roundError: action.payload.error ?? null,
                     difficulty: action.payload.difficulty,
                     maxIncorrectGuesses: getDifficultyConfig(action.payload.difficulty).maxIncorrectGuesses,
+                    hasSavedProgress: false,
                 });
             })
             .addCase(restartGame.rejected, (state, action) => {
@@ -239,16 +265,32 @@ const hangmanSlice = createSlice({
                     highScore: state.highScore,
                     lastGameWon: state.lastGameWon,
                     difficulty,
+                    hasSavedProgress: false,
                 });
             });
     },
 });
 
-export const { makeGuess, setNotStarted, setDifficulty, toggleHelp, gameWon, gameLost, toggleHint, revealHint } = hangmanSlice.actions;
+export const {
+    makeGuess,
+    setNotStarted,
+    loadSavedGame,
+    clearSavedGame,
+    setHasSavedProgress,
+    setDifficulty,
+    toggleHelp,
+    gameWon,
+    gameLost,
+    toggleHint,
+    revealHint,
+} = hangmanSlice.actions;
 
 export const createAppStore = () => configureStore({
     reducer: {
         hangman: hangmanSlice.reducer,
+    },
+    preloadedState: {
+        hangman: createInitialState(),
     },
 });
 

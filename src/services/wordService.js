@@ -128,10 +128,16 @@ export async function getPlayableWordWithHint(difficulty, fetchImpl = fetch) {
     }
   }
 
-  const fallbackWord = getRandomWordWithHints(undefined, difficulty);
+  let fallbackWord = getRandomWordWithHints(undefined, difficulty);
+  let normalizedFallbackWord = normalizeWord(fallbackWord.word, difficulty);
+
+  for (let attempt = 0; attempt < MAX_API_ATTEMPTS && !normalizedFallbackWord; attempt += 1) {
+    fallbackWord = getRandomWordWithHints(undefined, difficulty);
+    normalizedFallbackWord = normalizeWord(fallbackWord.word, difficulty);
+  }
 
   return {
-    word: fallbackWord.word,
+    word: normalizedFallbackWord ?? fallbackWord.word,
     hint: fallbackWord.hint,
     source: "local",
     error: lastError?.message ?? "API word resolution failed",
