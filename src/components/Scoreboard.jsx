@@ -15,7 +15,7 @@ function Scoreboard({ status, showButtons = true, compact = false }) {
   };
 
   return (
-    <div className={`text-center ${compact ? '' : 'mt-8'}`}>
+    <section className={`text-center ${compact ? '' : 'mt-8'}`} aria-label="Scoreboard">
       {status && (
         <div className="mb-6 animate-fade-in">
           <div className="text-3xl font-bold mb-4 bg-gradient-to-r from-cyan-400 to-blue-400 text-transparent bg-clip-text">
@@ -36,7 +36,7 @@ function Scoreboard({ status, showButtons = true, compact = false }) {
         {/* Score Card */}
         <div className={`relative overflow-hidden bg-slate-800/50 backdrop-blur-sm ${compact ? 'p-3' : 'p-6'} rounded-xl border border-cyan-500/20 shadow-lg shadow-cyan-500/5 group hover:border-cyan-500/40 transition-colors`}>
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 to-blue-500 opacity-50" />
-          <div className={`font-black ${compact ? 'text-2xl' : 'text-4xl'} bg-gradient-to-r from-cyan-400 to-blue-400 text-transparent bg-clip-text mb-1`}>
+          <div className={`font-black ${compact ? 'text-2xl' : 'text-4xl'} bg-gradient-to-r from-cyan-300 to-blue-300 text-transparent bg-clip-text mb-1`}>
             {points}
           </div>
           <div className="text-xs font-bold uppercase tracking-widest text-cyan-500/80">Score</div>
@@ -45,7 +45,7 @@ function Scoreboard({ status, showButtons = true, compact = false }) {
         {/* Streak Card */}
         <div className={`relative overflow-hidden bg-slate-800/50 backdrop-blur-sm ${compact ? 'p-3' : 'p-6'} rounded-xl border border-green-500/20 shadow-lg shadow-green-500/5 group hover:border-green-500/40 transition-colors`}>
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-400 to-emerald-500 opacity-50" />
-          <div className={`font-black ${compact ? 'text-2xl' : 'text-4xl'} bg-gradient-to-r from-green-400 to-emerald-400 text-transparent bg-clip-text mb-1`}>
+          <div className={`font-black ${compact ? 'text-2xl' : 'text-4xl'} bg-gradient-to-r from-green-300 to-emerald-300 text-transparent bg-clip-text mb-1`}>
             {streak}
           </div>
           <div className="text-xs font-bold uppercase tracking-widest text-green-500/80">Streak</div>
@@ -54,7 +54,7 @@ function Scoreboard({ status, showButtons = true, compact = false }) {
         {/* High Score Card */}
         <div className={`relative overflow-hidden bg-slate-800/50 backdrop-blur-sm ${compact ? 'p-3' : 'p-6'} rounded-xl border border-purple-500/20 shadow-lg shadow-purple-500/5 group hover:border-purple-500/40 transition-colors`}>
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-400 to-fuchsia-500 opacity-50" />
-          <div className={`font-black ${compact ? 'text-2xl' : 'text-4xl'} bg-gradient-to-r from-purple-400 to-fuchsia-400 text-transparent bg-clip-text mb-1`}>
+          <div className={`font-black ${compact ? 'text-2xl' : 'text-4xl'} bg-gradient-to-r from-purple-300 to-fuchsia-300 text-transparent bg-clip-text mb-1`}>
             {highScore}
           </div>
           <div className="text-xs font-bold uppercase tracking-widest text-purple-500/80">Best</div>
@@ -66,29 +66,32 @@ function Scoreboard({ status, showButtons = true, compact = false }) {
           {status === "You have won!" ? (
             <>
               <button
+                type="button"
                 onClick={handlePlay}
-                className="px-8 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-lg shadow-purple-500/20 hover:scale-105"
+                className="focus-ring px-8 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-lg shadow-purple-500/20 hover:scale-105"
               >
                 Continue
               </button>
               <button
+                type="button"
                 onClick={handleReset}
-                className="px-8 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg shadow-green-500/20 hover:scale-105"
+                className="focus-ring px-8 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg shadow-green-500/20 hover:scale-105"
               >
                 Reset
               </button>
             </>
           ) : (
             <button
+              type="button"
               onClick={handleReset}
-              className="px-8 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-lg shadow-red-500/20 hover:scale-105"
+              className="focus-ring px-8 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-lg shadow-red-500/20 hover:scale-105"
             >
               Play Again
             </button>
           )}
         </div>
       )}
-    </div>
+    </section>
   );
 }
 

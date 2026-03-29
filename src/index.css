@@ -1,11 +1,50 @@
 @import "tailwindcss";
 
+:root {
+    color-scheme: dark;
+}
 
 body {
     overflow-x: hidden;
     width: 100%;
     background-color: #1a202c;
     font-size: 14px;
+}
+
+body,
+#root {
+    min-height: 100vh;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.skip-link {
+    position: fixed;
+    left: 1rem;
+    top: 1rem;
+    z-index: 100;
+    padding: 0.75rem 1rem;
+    border-radius: 0.75rem;
+    border: 2px solid #67e8f9;
+    background: #082f49;
+    color: #ecfeff;
+    font-weight: 700;
+    transform: translateY(-200%);
+    transition: transform 0.2s ease;
+}
+
+.skip-link:focus {
+    transform: translateY(0);
 }
 
 @media (min-width: 1024px) {
@@ -16,6 +55,26 @@ body {
 
 button:focus {
     outline: 2px solid #007BFF;
+}
+
+:focus-visible {
+    outline: 3px solid #67e8f9;
+    outline-offset: 3px;
+}
+
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+[role="button"]:focus:not(:focus-visible) {
+    outline: none;
+}
+
+.focus-ring {
+    transition: box-shadow 0.2s ease, outline-color 0.2s ease, transform 0.2s ease;
+}
+
+.focus-ring:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(8, 47, 73, 0.95), 0 0 0 6px rgba(103, 232, 249, 0.85);
 }
 
 .figure-container {
@@ -354,4 +413,28 @@ button:focus {
     display: flex;
     justify-content: center;
     margin-top: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html:focus-within {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+html[data-reduced-motion='true'] *,
+html[data-reduced-motion='true'] *::before,
+html[data-reduced-motion='true'] *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
 }

@@ -6,12 +6,13 @@ function getVisibleParts(incorrectGuessCount, partRevealThresholds) {
   return partRevealThresholds.filter((threshold) => incorrectGuessCount >= threshold).length;
 }
 
-function HangmanFigure({ onClick }) {
+function HangmanFigure({ onClick, showHint = false, ariaHidden = false }) {
   const { incorrectGuesses, status, maxIncorrectGuesses, difficulty } = useSelector((state) => state.hangman);
   const [visibleParts, setVisibleParts] = useState(0);
   const { partRevealThresholds } = getDifficultyConfig(difficulty);
   const totalFigureParts = partRevealThresholds.length;
   const initialVisibleParts = getVisibleParts(0, partRevealThresholds);
+  const isInteractive = status === 'Playing' && typeof onClick === 'function' && !ariaHidden;
 
   useEffect(() => {
     if (status === "Not Started") {
@@ -28,16 +29,18 @@ function HangmanFigure({ onClick }) {
     }
   }, [status, incorrectGuesses.length, maxIncorrectGuesses, initialVisibleParts, partRevealThresholds, totalFigureParts]);
 
-  return (
-    <div
-      className={`flex justify-center mt-4 relative transition-all duration-300 pointer-events-auto bg-transparent ${status === 'Playing' ? 'cursor-pointer hover:scale-105 active:scale-95' : ''}`}
-      onClick={status === 'Playing' ? onClick : undefined}
-      title={status === 'Playing' ? "Click for a definition hint!" : ""}
-    >
+  const figureContent = (
+    <>
       {/* Glow effect background */}
       <div className="absolute inset-0 bg-cyan-500/5 blur-3xl rounded-full transform scale-150" />
 
-      <svg height="250" width="200" className="relative z-10 overflow-visible">
+      <svg
+        height="250"
+        width="200"
+        className="relative z-10 overflow-visible"
+        aria-hidden={ariaHidden || isInteractive}
+        focusable="false"
+      >
         <defs>
           <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
             <feGaussianBlur stdDeviation="2" result="blur" />
@@ -63,6 +66,31 @@ function HangmanFigure({ onClick }) {
           {visibleParts > 5 && <line x1="140" y1="150" x2="160" y2="180" className="animate-draw" />} {/* Right leg */}
         </g>
       </svg>
+    </>
+  );
+
+  if (isInteractive) {
+    return (
+      <button
+        type="button"
+        className="focus-ring flex justify-center mt-4 relative transition-all duration-300 pointer-events-auto bg-transparent cursor-pointer hover:scale-105 active:scale-95 rounded-2xl"
+        onClick={onClick}
+        title="Show or hide the definition hint"
+        aria-label={showHint ? 'Hide definition hint' : 'Show definition hint'}
+        aria-expanded={showHint}
+        aria-controls="definition-hint-panel"
+      >
+        {figureContent}
+      </button>
+    );
+  }
+
+  return (
+    <div
+      className="flex justify-center mt-4 relative transition-all duration-300 pointer-events-auto bg-transparent"
+      aria-hidden={ariaHidden}
+    >
+      {figureContent}
     </div>
   );
 }

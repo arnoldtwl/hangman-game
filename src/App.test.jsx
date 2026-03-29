@@ -50,6 +50,18 @@ function seedSavedProgress(overrides = {}) {
   window.localStorage.setItem(PROGRESS_SAVE_STORAGE_KEY, JSON.stringify(payload));
 }
 
+function getChanceBadgeText(expectedText) {
+  return screen.getByText(expectedText, { selector: 'span' });
+}
+
+async function findChanceBadgeText(expectedText) {
+  return screen.findByText(expectedText, { selector: 'span' });
+}
+
+function getGuessButton(letter) {
+  return screen.getByRole('button', { name: new RegExp(`^guess letter ${letter}$`, 'i') });
+}
+
 beforeEach(() => {
   window.history.pushState({}, '', '/');
 });
@@ -103,10 +115,10 @@ test('renders difficulty choices, starts a medium round, and displays the defini
   });
 
   expect(screen.getAllByText(/Medium/i).length).toBeGreaterThan(0);
-  expect(screen.getByText(/6 chances left/i)).toBeInTheDocument();
+  expect(getChanceBadgeText(/6 of 6 chances left/i)).toBeInTheDocument();
 
-  await user.click(screen.getByRole('button', { name: /^B$/i }));
-  await user.click(screen.getByRole('button', { name: /hint/i }));
+  await user.click(getGuessButton('B'));
+  await user.click(screen.getByRole('button', { name: /reveal hint for 5 points/i }));
 
   expect(await screen.findByText(/Definition Hint/i)).toBeInTheDocument();
   expect(screen.getByText(/A long curved fruit\./i)).toBeInTheDocument();
@@ -161,11 +173,11 @@ test('hard mode loses after the fifth incorrect guess', async () => {
   await user.click(screen.getByRole('button', { name: /hard/i }));
   await user.click(screen.getByRole('button', { name: /play now/i }));
 
-  await screen.findByText(/5 chances left/i);
+  await findChanceBadgeText(/5 of 5 chances left/i);
   expect(screen.getByTestId('hangman-head')).toBeInTheDocument();
 
   for (const letter of ['B', 'F', 'G', 'H', 'J']) {
-    await user.click(screen.getByRole('button', { name: new RegExp(`^${letter}$`, 'i') }));
+    await user.click(getGuessButton(letter));
   }
 
   expect(await screen.findByText(/You have lost!/i)).toBeInTheDocument();
@@ -204,20 +216,20 @@ test('easy mode uses two extra guesses before the first two figure parts appear'
   await user.click(screen.getByRole('button', { name: /easy/i }));
   await user.click(screen.getByRole('button', { name: /play now/i }));
 
-  await screen.findByText(/8 chances left/i);
+  await findChanceBadgeText(/8 of 8 chances left/i);
   expect(screen.queryByTestId('hangman-head')).not.toBeInTheDocument();
 
-  await user.click(screen.getByRole('button', { name: /^B$/i }));
+  await user.click(getGuessButton('B'));
   expect(screen.queryByTestId('hangman-head')).not.toBeInTheDocument();
 
-  await user.click(screen.getByRole('button', { name: /^C$/i }));
+  await user.click(getGuessButton('C'));
   expect(screen.getByTestId('hangman-head')).toBeInTheDocument();
   expect(screen.queryByTestId('hangman-body')).not.toBeInTheDocument();
 
-  await user.click(screen.getByRole('button', { name: /^D$/i }));
+  await user.click(getGuessButton('D'));
   expect(screen.queryByTestId('hangman-body')).not.toBeInTheDocument();
 
-  await user.click(screen.getByRole('button', { name: /^F$/i }));
+  await user.click(getGuessButton('F'));
   expect(screen.getByTestId('hangman-body')).toBeInTheDocument();
 });
 
@@ -279,9 +291,9 @@ test('muted state suppresses gameplay audio', async () => {
 
   await user.click(screen.getByRole('button', { name: /mute sound effects/i }));
   await user.click(screen.getByRole('button', { name: /play now/i }));
-  await screen.findByText(/6 chances left/i);
+  await findChanceBadgeText(/6 of 6 chances left/i);
 
-  await user.click(screen.getByRole('button', { name: /^B$/i }));
+  await user.click(getGuessButton('B'));
 
   expect(window.HTMLMediaElement.prototype.play).not.toHaveBeenCalled();
 });
@@ -301,7 +313,7 @@ test('shows resume prompt and restores a saved in-progress game', async () => {
 
   await user.click(screen.getByRole('button', { name: /resume game/i }));
 
-  expect(await screen.findByText(/5 of 6 chances left/i)).toBeInTheDocument();
+  expect(await findChanceBadgeText(/5 of 6 chances left/i)).toBeInTheDocument();
   expect(screen.getByText(/12/)).toBeInTheDocument();
 });
 
@@ -337,7 +349,7 @@ test('new game clears saved progress and starts fresh', async () => {
   );
 
   await user.click(screen.getByRole('button', { name: /new game/i }));
-  await screen.findByText(/6 chances left/i);
+  await findChanceBadgeText(/6 of 6 chances left/i);
 
   expect(window.localStorage.getItem(PROGRESS_SAVE_STORAGE_KEY)).toBeNull();
   expect(screen.queryByText(/Continue where you left off/i)).not.toBeInTheDocument();
@@ -374,7 +386,7 @@ test('does not save a fresh round before any letters are guessed', async () => {
   );
 
   await user.click(screen.getByRole('button', { name: /play now/i }));
-  await screen.findByText(/6 chances left/i);
+  await findChanceBadgeText(/6 of 6 chances left/i);
 
   expect(window.localStorage.getItem(PROGRESS_SAVE_STORAGE_KEY)).toBeNull();
 
@@ -389,4 +401,77 @@ test('does not save a fresh round before any letters are guessed', async () => {
   );
 
   expect(screen.queryByText(/Continue where you left off/i)).not.toBeInTheDocument();
+});
+
+test('renders skip navigation and announces gameplay updates accessibly', async () => {
+  const store = createAppStore();
+  const user = userEvent.setup();
+
+  global.fetch = vi.fn((url) => {
+    if (url.includes('random-word-api')) {
+      return Promise.resolve(createJsonResponse(['banana']));
+    }
+
+    if (url.includes('/entries/en/banana')) {
+      return Promise.resolve(createJsonResponse([
+        {
+          meanings: [
+            {
+              definitions: [{ definition: 'A long curved fruit.' }],
+            },
+          ],
+        },
+      ]));
+    }
+
+    return Promise.reject(new Error(`Unexpected URL: ${url}`));
+  });
+
+  render(
+    <Provider store={store}>
+      <App />
+    </Provider>,
+  );
+
+  expect(screen.getByRole('link', { name: /skip to main content/i })).toBeInTheDocument();
+
+  await user.click(screen.getByRole('button', { name: /play now/i }));
+  await findChanceBadgeText(/6 of 6 chances left/i);
+
+  await user.click(screen.getByRole('button', { name: /^guess letter b$/i }));
+  expect(await screen.findByText(/Correct guess: B\./i)).toBeInTheDocument();
+
+  await user.click(screen.getByRole('button', { name: /reveal hint for 5 points/i }));
+  expect(await screen.findByText(/Hint revealed\. Definition shown\./i)).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /hide definition hint/i })).toBeInTheDocument();
+
+  await user.click(screen.getByRole('button', { name: /hide definition hint/i }));
+  expect(await screen.findByRole('button', { name: /show definition hint/i })).toBeInTheDocument();
+});
+
+test('respects reduced-motion preference at the document level', () => {
+  const originalMatchMedia = window.matchMedia;
+
+  window.matchMedia = vi.fn().mockImplementation((query) => ({
+    matches: query === '(prefers-reduced-motion: reduce)',
+    media: query,
+    onchange: null,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }));
+
+  const store = createAppStore();
+
+  render(
+    <Provider store={store}>
+      <App />
+    </Provider>,
+  );
+
+  expect(document.documentElement.dataset.reducedMotion).toBe('true');
+
+  window.matchMedia = originalMatchMedia;
 });
