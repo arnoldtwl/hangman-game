@@ -1,7 +1,7 @@
 # Hangman Game
 
 ## Description
-This is a modern implementation of the classic Hangman game. The game features a sleek UI, keyboard support, and a points system to make the game more engaging.
+This is a modern implementation of the classic Hangman game. The game features a sleek UI, keyboard and screen-reader support, dictionary-powered hints, difficulty levels, sound effects, progress saving, and a score system to make each round more engaging.
 
 ## Installation
 
@@ -22,17 +22,17 @@ This is a modern implementation of the classic Hangman game. The game features a
 
 4. **Start the development server**:
    ```bash
-   npm start
+   npm run dev
    ```
 
-5. **Access the game**: Open your browser and navigate to `http://localhost:3000`.
+5. **Access the game**: Open your browser and navigate to the local Vite URL shown in the terminal, usually `http://localhost:5173`.
 
 6. **Enjoy the game!**
 
 ## Keybindings
 
 - **F1**: Help
-- **F2**: Toggle Hint
+- **F2**: Reveal Hint
 - **F5**: Restart Game
 
 ## Points System
@@ -52,10 +52,15 @@ This is a modern implementation of the classic Hangman game. The game features a
 ## Features
 
 - **Modern UI**: A sleek and modern user interface.
-- **Keyboard Support**: Use your physical keyboard to make guesses.
-- **Hints**: Reveal hints to help guess the word (costs points).
+- **Dictionary API Integration**: The game fetches random words from the [Random Word API](https://random-word-api.herokuapp.com/word) and dictionary definitions from the [Free Dictionary API](https://api.dictionaryapi.dev/api/v2/entries/en/) for hint content, with a local fallback if the APIs are unavailable.
+- **Difficulty Levels**: Choose between Easy, Medium, and Hard, each with its own word-length range and number of allowed mistakes.
+- **Keyboard Support**: Use your physical keyboard or the on-screen keyboard to make guesses.
+- **Definition Hints**: Reveal a random letter and show a dictionary definition to help solve the word.
 - **Points System**: Earn points for correct guesses and completed words.
 - **High Score**: Track your highest score.
+- **Sound Effects**: Hear feedback for correct guesses, incorrect guesses, wins, and losses, with a persistent mute toggle.
+- **Progress Save**: Resume unfinished games automatically after leaving or refreshing the app once at least one letter has been guessed.
+- **Accessibility**: Includes keyboard-accessible navigation, screen-reader announcements, improved focus states, reduced-motion support, and stronger contrast handling.
 
 ## Migration
 
@@ -63,12 +68,9 @@ This project was migrated from Create React App to Vite for faster builds and im
 
 ## Future Enhancements
 
-- **Full Dictionary API Integration**: Replace the static category lists with dynamic word generation using the [Random Word API](https://random-word-api.herokuapp.com/word) for words and [Free Dictionary API](https://api.dictionaryapi.dev/api/v2/entries/en/) to provide definitions as hints.
-- **Difficulty Levels**: Introduce different difficulty levels with more complex words and fewer attempts.
-- **Sound Effects**: Add sound effects for correct guesses, incorrect guesses, winning, and losing.
-- **Word Categories**: Allow players to choose categories of words, such as animals, countries, movies, etc.
-- **Progress Save**: Enable users to save and continue their game later.
-- **Accessibility**: Ensure the game is fully accessible, including keyboard navigation, screen reader support, and color contrast.
+- **Expanded Statistics**: Add deeper lifetime stats such as total wins, losses, best streaks, and average score.
+- **More Game Modes**: Introduce alternate challenge modes such as timed rounds or survival mode.
+- **Achievement System**: Reward players for milestones such as win streaks, no-hint victories, or perfect rounds.
 
 ## Contributing
 
