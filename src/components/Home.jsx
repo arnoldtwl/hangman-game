@@ -1,14 +1,15 @@
 import React, { startTransition, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setNotStarted, resetGame } from '../store/store';
+import { setNotStarted, resetGame, setDifficulty } from '../store/store';
 import HangmanFigure from './HangmanFigure';
 import Button from '../utils/Button';
 import { Link, useNavigate } from 'react-router-dom';
+import { DIFFICULTY_CONFIG } from '../config/difficulty';
 
 const HomePage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { isLoadingRound } = useSelector((state) => state.hangman);
+    const { isLoadingRound, difficulty, maxIncorrectGuesses } = useSelector((state) => state.hangman);
 
     useEffect(() => {
         dispatch(setNotStarted());
@@ -20,6 +21,8 @@ const HomePage = () => {
             navigate('/game');
         });
     };
+
+    const difficultyEntries = Object.entries(DIFFICULTY_CONFIG);
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden relative pt-24">
@@ -46,11 +49,44 @@ const HomePage = () => {
                             Challenge your vocabulary in this modern take on the classic game.
                         </p>
                         <p>
-                            <span className="text-red-400 font-semibold">6 mistakes</span> and it's game over.
+                            <span className="text-red-400 font-semibold">{maxIncorrectGuesses} mistakes</span> and it's game over on {DIFFICULTY_CONFIG[difficulty].label}.
                         </p>
                     </div>
 
                     <div className="pt-4 flex flex-col items-center gap-6">
+                        <div className="w-full space-y-4">
+                            <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">Choose Difficulty</p>
+                            <div className="grid gap-3 md:grid-cols-3">
+                                {difficultyEntries.map(([level, config]) => {
+                                    const isSelected = difficulty === level;
+
+                                    return (
+                                        <button
+                                            key={level}
+                                            type="button"
+                                            onClick={() => dispatch(setDifficulty(level))}
+                                            className={`rounded-2xl border px-4 py-4 text-left transition-all duration-200 ${
+                                                isSelected
+                                                    ? 'border-cyan-400 bg-cyan-500/10 shadow-lg shadow-cyan-500/10'
+                                                    : 'border-white/10 bg-slate-950/30 hover:border-cyan-500/40 hover:bg-slate-900/40'
+                                            }`}
+                                        >
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-lg font-bold text-white">{config.label}</span>
+                                                <span className={`text-xs uppercase tracking-[0.2em] ${isSelected ? 'text-cyan-300' : 'text-slate-500'}`}>
+                                                    {config.maxIncorrectGuesses} tries
+                                                </span>
+                                            </div>
+                                            <p className="mt-2 text-sm text-slate-300">{config.description}</p>
+                                            <p className="mt-3 text-xs uppercase tracking-[0.2em] text-slate-500">
+                                                {config.minLength}-{config.maxLength} letters
+                                            </p>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
                         <Button
                             onClick={handlePlay}
                             disabled={isLoadingRound}
@@ -70,7 +106,7 @@ const HomePage = () => {
 
                         {isLoadingRound && (
                             <p className="text-sm text-cyan-300 tracking-wide">
-                                Fetching a fresh word and dictionary hint...
+                                Fetching a {DIFFICULTY_CONFIG[difficulty].label.toLowerCase()} round with a fresh dictionary hint...
                             </p>
                         )}
 

@@ -7,6 +7,7 @@ import Keyboard from './Keyboard';
 import WordToGuess from './WordToGuess';
 import Scoreboard from './Scoreboard';
 import GameControls from './GameControls';
+import { DIFFICULTY_CONFIG } from '../config/difficulty';
 
 const Game = () => {
     const dispatch = useDispatch();
@@ -20,6 +21,8 @@ const Game = () => {
         hint,
         isLoadingRound,
         roundSource,
+        difficulty,
+        maxIncorrectGuesses,
     } = useSelector((state) => state.hangman);
     const hiddenInput = useRef(null);
 
@@ -91,12 +94,12 @@ const Game = () => {
             return;
         }
 
-        if (incorrectGuesses.length === 6) {
+        if (incorrectGuesses.length === maxIncorrectGuesses) {
             dispatch(gameLost());
         } else if (word.split("").every((letter) => correctGuesses.includes(letter) || letter === " ")) {
             dispatch(gameWon());
         }
-    }, [correctGuesses, incorrectGuesses, word, dispatch, isLoadingRound]);
+    }, [correctGuesses, incorrectGuesses, word, dispatch, isLoadingRound, maxIncorrectGuesses]);
 
     return (
         <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-x-hidden relative">
@@ -130,6 +133,17 @@ const Game = () => {
                                     </div>
                                 ) : (
                                     <WordToGuess />
+                                )}
+
+                                {!isLoadingRound && (
+                                    <div className="flex flex-wrap items-center justify-center gap-3 text-xs uppercase tracking-[0.2em] text-slate-400">
+                                        <span className="rounded-full border border-white/10 bg-slate-950/40 px-4 py-2">
+                                            {DIFFICULTY_CONFIG[difficulty].label}
+                                        </span>
+                                        <span className="rounded-full border border-white/10 bg-slate-950/40 px-4 py-2">
+                                            {maxIncorrectGuesses - incorrectGuesses.length} of {maxIncorrectGuesses} chances left
+                                        </span>
+                                    </div>
                                 )}
 
                                 {showHint && !isLoadingRound && (
@@ -232,6 +246,10 @@ const Game = () => {
                                 <li className="flex items-start gap-2">
                                     <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 mt-1.5" />
                                     Use keyboard or click letters
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 mt-1.5" />
+                                    {DIFFICULTY_CONFIG[difficulty].label} mode gives you {maxIncorrectGuesses} mistakes
                                 </li>
                                 <li className="flex items-start gap-2">
                                     <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 mt-1.5" />

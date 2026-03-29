@@ -4,6 +4,7 @@ import {
   makeGuess,
   resetGame,
   restartGame,
+  setDifficulty,
 } from './store';
 
 function createJsonResponse(body, ok = true, status = 200) {
@@ -19,18 +20,31 @@ describe('hangman store async rounds', () => {
     vi.restoreAllMocks();
   });
 
+  test('defaults to medium difficulty and lets players change it before a round', () => {
+    const store = createAppStore();
+
+    expect(store.getState().hangman.difficulty).toBe('medium');
+    expect(store.getState().hangman.maxIncorrectGuesses).toBe(6);
+
+    store.dispatch(setDifficulty('hard'));
+
+    expect(store.getState().hangman.difficulty).toBe('hard');
+    expect(store.getState().hangman.maxIncorrectGuesses).toBe(5);
+    expect(store.getState().hangman.status).toBe('Not Started');
+  });
+
   test('starts a new API-backed round and records the source', async () => {
     global.fetch = vi.fn((url) => {
       if (url.includes('random-word-api')) {
-        return Promise.resolve(createJsonResponse(['apple']));
+        return Promise.resolve(createJsonResponse(['banana']));
       }
 
-      if (url.includes('/entries/en/apple')) {
+      if (url.includes('/entries/en/banana')) {
         return Promise.resolve(createJsonResponse([
           {
             meanings: [
               {
-                definitions: [{ definition: 'A fruit that grows on trees.' }],
+                definitions: [{ definition: 'A long curved fruit.' }],
               },
             ],
           },
@@ -49,12 +63,39 @@ describe('hangman store async rounds', () => {
     await dispatchPromise;
 
     expect(store.getState().hangman).toMatchObject({
-      word: 'APPLE',
-      hint: 'A fruit that grows on trees.',
+      word: 'BANANA',
+      hint: 'A long curved fruit.',
       isLoadingRound: false,
       roundSource: 'api',
       status: 'Playing',
+      difficulty: 'medium',
+      maxIncorrectGuesses: 6,
     });
+  });
+
+  test('requests words using the selected difficulty', async () => {
+    global.fetch = vi
+      .fn()
+      .mockResolvedValueOnce(createJsonResponse(['apple']))
+      .mockResolvedValueOnce(createJsonResponse(['encyclopedia']))
+      .mockResolvedValueOnce(createJsonResponse([
+        {
+          meanings: [
+            {
+              definitions: [{ definition: 'A reference work containing articles.' }],
+            },
+          ],
+        },
+      ]));
+
+    const store = createAppStore();
+    store.dispatch(setDifficulty('hard'));
+
+    await store.dispatch(resetGame());
+
+    expect(store.getState().hangman.word).toBe('ENCYCLOPEDIA');
+    expect(store.getState().hangman.difficulty).toBe('hard');
+    expect(store.getState().hangman.maxIncorrectGuesses).toBe(5);
   });
 
   test('falls back to local data when API requests fail', async () => {
@@ -70,6 +111,9 @@ describe('hangman store async rounds', () => {
   });
 
   test('preserves score when restarting after a win', async () => {
+    const store = createAppStore();
+    store.dispatch(setDifficulty('easy'));
+
     global.fetch = vi
       .fn()
       .mockResolvedValueOnce(createJsonResponse(['cat']))
@@ -93,8 +137,6 @@ describe('hangman store async rounds', () => {
         },
       ]));
 
-    const store = createAppStore();
-
     await store.dispatch(resetGame());
     store.dispatch(makeGuess('C'));
     store.dispatch(makeGuess('A'));
@@ -108,5 +150,6 @@ describe('hangman store async rounds', () => {
     expect(store.getState().hangman.word).toBe('DOG');
     expect(store.getState().hangman.points).toBe(winningScore);
     expect(store.getState().hangman.roundSource).toBe('api');
+    expect(store.getState().hangman.difficulty).toBe('easy');
   });
 });

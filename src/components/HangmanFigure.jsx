@@ -1,24 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { getDifficultyConfig } from '../config/difficulty';
+
+function getVisibleParts(incorrectGuessCount, partRevealThresholds) {
+  return partRevealThresholds.filter((threshold) => incorrectGuessCount >= threshold).length;
+}
 
 function HangmanFigure({ onClick }) {
-  const { incorrectGuesses, status } = useSelector((state) => state.hangman);
-  const maxIncorrectGuesses = 6;
+  const { incorrectGuesses, status, maxIncorrectGuesses, difficulty } = useSelector((state) => state.hangman);
   const [visibleParts, setVisibleParts] = useState(0);
+  const { partRevealThresholds } = getDifficultyConfig(difficulty);
+  const totalFigureParts = partRevealThresholds.length;
+  const initialVisibleParts = getVisibleParts(0, partRevealThresholds);
 
   useEffect(() => {
     if (status === "Not Started") {
       let timer;
-      for (let i = 1; i <= maxIncorrectGuesses; i++) {
+      setVisibleParts(initialVisibleParts);
+      for (let i = initialVisibleParts + 1; i <= totalFigureParts; i++) {
         timer = setTimeout(() => {
           setVisibleParts(i);
-        }, i * 500);
+        }, (i - initialVisibleParts) * 500);
       }
       return () => clearTimeout(timer);
     } else {
-      setVisibleParts(incorrectGuesses.length);
+      setVisibleParts(getVisibleParts(incorrectGuesses.length, partRevealThresholds));
     }
-  }, [status, incorrectGuesses.length]);
+  }, [status, incorrectGuesses.length, maxIncorrectGuesses, initialVisibleParts, partRevealThresholds, totalFigureParts]);
 
   return (
     <div
@@ -47,8 +55,8 @@ function HangmanFigure({ onClick }) {
 
         {/* Figure */}
         <g stroke="currentColor" strokeWidth="4" strokeLinecap="round" className="text-cyan-400" filter="url(#glow)">
-          {visibleParts > 0 && <circle cx="140" cy="70" r="20" fill="transparent" className="animate-draw" />} {/* Head */}
-          {visibleParts > 1 && <line x1="140" y1="90" x2="140" y2="150" className="animate-draw" />} {/* Body */}
+          {visibleParts > 0 && <circle cx="140" cy="70" r="20" fill="transparent" className="animate-draw" data-testid="hangman-head" />} {/* Head */}
+          {visibleParts > 1 && <line x1="140" y1="90" x2="140" y2="150" className="animate-draw" data-testid="hangman-body" />} {/* Body */}
           {visibleParts > 2 && <line x1="140" y1="120" x2="120" y2="100" className="animate-draw" />} {/* Left arm */}
           {visibleParts > 3 && <line x1="140" y1="120" x2="160" y2="100" className="animate-draw" />} {/* Right arm */}
           {visibleParts > 4 && <line x1="140" y1="150" x2="120" y2="180" className="animate-draw" />} {/* Left leg */}

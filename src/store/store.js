@@ -1,38 +1,56 @@
 import { configureStore, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getRandomWordWithHints } from "../utils/utils";
 import { getPlayableWordWithHint } from "../services/wordService";
+import { DEFAULT_DIFFICULTY, getDifficultyConfig } from "../config/difficulty";
 
-const fallbackWordWithHint = getRandomWordWithHints();
+const fallbackWordWithHint = getRandomWordWithHints(undefined, DEFAULT_DIFFICULTY);
 
-const createRoundState = ({ keepPoints = false } = {}) => ({
-    word: fallbackWordWithHint.word,
-    hint: fallbackWordWithHint.hint,
-    correctGuesses: [],
-    incorrectGuesses: [],
-    status: "Playing",
-    showHint: false,
-    hintsUsed: 0,
-    hintPenalty: 0,
-    streak: 0,
-    isLoadingRound: true,
-    roundSource: null,
-    roundError: null,
-    ...(keepPoints ? {} : { points: 0 }),
-});
+const createRoundState = ({ keepPoints = false, difficulty = DEFAULT_DIFFICULTY } = {}) => {
+    const fallbackRound = getRandomWordWithHints(undefined, difficulty);
+    const difficultyConfig = getDifficultyConfig(difficulty);
 
-export const resetGame = createAsyncThunk("hangman/resetGame", async () => {
-    return getPlayableWordWithHint();
-});
+    return {
+        word: fallbackRound.word,
+        hint: fallbackRound.hint,
+        correctGuesses: [],
+        incorrectGuesses: [],
+        status: "Playing",
+        showHint: false,
+        hintsUsed: 0,
+        hintPenalty: 0,
+        streak: 0,
+        isLoadingRound: true,
+        roundSource: null,
+        roundError: null,
+        difficulty,
+        maxIncorrectGuesses: difficultyConfig.maxIncorrectGuesses,
+        ...(keepPoints ? {} : { points: 0 }),
+    };
+};
+
+export const resetGame = createAsyncThunk(
+    "hangman/resetGame",
+    async (_, { getState }) => {
+        const { difficulty } = getState().hangman;
+        const round = await getPlayableWordWithHint(difficulty);
+
+        return {
+            ...round,
+            difficulty,
+        };
+    },
+);
 
 export const restartGame = createAsyncThunk(
     "hangman/restartGame",
     async (_, { getState }) => {
-        const { lastGameWon } = getState().hangman;
-        const round = await getPlayableWordWithHint();
+        const { lastGameWon, difficulty } = getState().hangman;
+        const round = await getPlayableWordWithHint(difficulty);
 
         return {
             ...round,
             keepPoints: lastGameWon,
+            difficulty,
         };
     },
 );
@@ -55,6 +73,8 @@ const initialState = {
     isLoadingRound: false,
     roundSource: null,
     roundError: null,
+    difficulty: DEFAULT_DIFFICULTY,
+    maxIncorrectGuesses: getDifficultyConfig(DEFAULT_DIFFICULTY).maxIncorrectGuesses,
 };
 
 const hangmanSlice = createSlice({
@@ -96,6 +116,13 @@ const hangmanSlice = createSlice({
             state.isLoadingRound = false;
             state.roundSource = null;
             state.roundError = null;
+        },
+        setDifficulty: (state, action) => {
+            const difficulty = action.payload;
+            const difficultyConfig = getDifficultyConfig(difficulty);
+
+            state.difficulty = difficulty;
+            state.maxIncorrectGuesses = difficultyConfig.maxIncorrectGuesses;
         },
         toggleHelp: (state) => {
             state.showHelp = !state.showHelp;
@@ -143,9 +170,10 @@ const hangmanSlice = createSlice({
         builder
             .addCase(resetGame.pending, (state) => {
                 Object.assign(state, {
-                    ...createRoundState(),
+                    ...createRoundState({ difficulty: state.difficulty }),
                     highScore: state.highScore,
                     lastGameWon: false,
+                    difficulty: state.difficulty,
                 });
             })
             .addCase(resetGame.fulfilled, (state, action) => {
@@ -156,26 +184,32 @@ const hangmanSlice = createSlice({
                     isLoadingRound: false,
                     roundSource: action.payload.source,
                     roundError: action.payload.error ?? null,
+                    difficulty: action.payload.difficulty,
+                    maxIncorrectGuesses: getDifficultyConfig(action.payload.difficulty).maxIncorrectGuesses,
                 });
             })
             .addCase(resetGame.rejected, (state, action) => {
+                const difficulty = state.difficulty;
+                const fallbackRound = getRandomWordWithHints(undefined, difficulty);
                 Object.assign(state, {
-                    ...createRoundState(),
-                    word: fallbackWordWithHint.word,
-                    hint: fallbackWordWithHint.hint,
+                    ...createRoundState({ difficulty }),
+                    word: fallbackRound.word,
+                    hint: fallbackRound.hint,
                     isLoadingRound: false,
                     roundSource: "local",
                     roundError: action.error.message ?? "Unable to start a new round",
                     highScore: state.highScore,
                     lastGameWon: false,
+                    difficulty,
                 });
             })
             .addCase(restartGame.pending, (state) => {
                 Object.assign(state, {
-                    ...createRoundState({ keepPoints: state.lastGameWon }),
+                    ...createRoundState({ keepPoints: state.lastGameWon, difficulty: state.difficulty }),
                     points: state.lastGameWon ? state.points : 0,
                     highScore: state.highScore,
                     lastGameWon: state.lastGameWon,
+                    difficulty: state.difficulty,
                 });
             })
             .addCase(restartGame.fulfilled, (state, action) => {
@@ -187,25 +221,30 @@ const hangmanSlice = createSlice({
                     isLoadingRound: false,
                     roundSource: action.payload.source,
                     roundError: action.payload.error ?? null,
+                    difficulty: action.payload.difficulty,
+                    maxIncorrectGuesses: getDifficultyConfig(action.payload.difficulty).maxIncorrectGuesses,
                 });
             })
             .addCase(restartGame.rejected, (state, action) => {
+                const difficulty = state.difficulty;
+                const fallbackRound = getRandomWordWithHints(undefined, difficulty);
                 Object.assign(state, {
-                    ...createRoundState({ keepPoints: state.lastGameWon }),
-                    word: fallbackWordWithHint.word,
-                    hint: fallbackWordWithHint.hint,
+                    ...createRoundState({ keepPoints: state.lastGameWon, difficulty }),
+                    word: fallbackRound.word,
+                    hint: fallbackRound.hint,
                     points: state.lastGameWon ? state.points : 0,
                     isLoadingRound: false,
                     roundSource: "local",
                     roundError: action.error.message ?? "Unable to restart the round",
                     highScore: state.highScore,
                     lastGameWon: state.lastGameWon,
+                    difficulty,
                 });
             });
     },
 });
 
-export const { makeGuess, setNotStarted, toggleHelp, gameWon, gameLost, toggleHint, revealHint } = hangmanSlice.actions;
+export const { makeGuess, setNotStarted, setDifficulty, toggleHelp, gameWon, gameLost, toggleHint, revealHint } = hangmanSlice.actions;
 
 export const createAppStore = () => configureStore({
     reducer: {

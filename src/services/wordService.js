@@ -1,9 +1,9 @@
 import { getRandomWordWithHints } from "../utils/utils";
+import { getDifficultyConfig } from "../config/difficulty";
 
-const RANDOM_WORD_API_URL = "https://random-word-api.herokuapp.com/word?number=1";
+const RANDOM_WORD_BATCH_SIZE = 12;
+const RANDOM_WORD_API_URL = `https://random-word-api.herokuapp.com/word?number=${RANDOM_WORD_BATCH_SIZE}`;
 const DICTIONARY_API_BASE_URL = "https://api.dictionaryapi.dev/api/v2/entries/en/";
-const MIN_WORD_LENGTH = 3;
-const MAX_WORD_LENGTH = 18;
 const MAX_API_ATTEMPTS = 5;
 const SUPPORTED_WORD_PATTERN = /^[A-Z]+(?: [A-Z]+)*$/;
 
@@ -15,7 +15,7 @@ function cleanDefinition(definition) {
   return definition.replace(/\s+/g, " ").trim();
 }
 
-export function normalizeWord(rawWord) {
+export function normalizeWord(rawWord, difficulty) {
   if (typeof rawWord !== "string") {
     return null;
   }
@@ -28,10 +28,11 @@ export function normalizeWord(rawWord) {
 
   const normalizedWord = trimmedWord.replace(/[-_]+/g, " ").replace(/\s+/g, " ").toUpperCase();
   const condensedLength = normalizedWord.replace(/ /g, "").length;
+  const { minLength, maxLength } = getDifficultyConfig(difficulty);
 
   if (
-    condensedLength < MIN_WORD_LENGTH ||
-    condensedLength > MAX_WORD_LENGTH ||
+    condensedLength < minLength ||
+    condensedLength > maxLength ||
     !SUPPORTED_WORD_PATTERN.test(normalizedWord)
   ) {
     return null;
@@ -68,7 +69,7 @@ export function extractDefinitionHint(dictionaryEntries) {
   return null;
 }
 
-async function fetchRandomWord(fetchImpl) {
+async function fetchRandomWords(fetchImpl) {
   const response = await fetchImpl(RANDOM_WORD_API_URL);
 
   if (!response.ok) {
@@ -77,11 +78,11 @@ async function fetchRandomWord(fetchImpl) {
 
   const words = await response.json();
 
-  if (!Array.isArray(words) || typeof words[0] !== "string") {
+  if (!Array.isArray(words) || !words.every((word) => typeof word === "string")) {
     throw new Error("Random word response was malformed");
   }
 
-  return words[0];
+  return words;
 }
 
 async function fetchDefinitionHint(fetchImpl, word) {
@@ -101,16 +102,18 @@ async function fetchDefinitionHint(fetchImpl, word) {
   return definition;
 }
 
-export async function getPlayableWordWithHint(fetchImpl = fetch) {
+export async function getPlayableWordWithHint(difficulty, fetchImpl = fetch) {
   let lastError = null;
 
   for (let attempt = 0; attempt < MAX_API_ATTEMPTS; attempt += 1) {
     try {
-      const rawWord = await fetchRandomWord(fetchImpl);
-      const normalizedWord = normalizeWord(rawWord);
+      const rawWords = await fetchRandomWords(fetchImpl);
+      const normalizedWord = rawWords
+        .map((rawWord) => normalizeWord(rawWord, difficulty))
+        .find(Boolean);
 
       if (!normalizedWord) {
-        throw new Error(`Random word "${rawWord}" was not playable`);
+        throw new Error("Random word batch did not contain a playable word");
       }
 
       const definitionHint = await fetchDefinitionHint(fetchImpl, normalizedWord.toLowerCase());
@@ -125,7 +128,7 @@ export async function getPlayableWordWithHint(fetchImpl = fetch) {
     }
   }
 
-  const fallbackWord = getRandomWordWithHints();
+  const fallbackWord = getRandomWordWithHints(undefined, difficulty);
 
   return {
     word: fallbackWord.word,

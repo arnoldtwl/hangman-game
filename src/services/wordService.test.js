@@ -14,14 +14,20 @@ function createJsonResponse(body, ok = true, status = 200) {
 
 describe('wordService', () => {
   test('normalizes supported words and phrases', () => {
-    expect(normalizeWord('apple')).toBe('APPLE');
-    expect(normalizeWord('ice-cream')).toBe('ICE CREAM');
+    expect(normalizeWord('apple', 'easy')).toBe('APPLE');
+    expect(normalizeWord('ice-cream', 'medium')).toBe('ICE CREAM');
   });
 
   test('rejects unsupported words', () => {
-    expect(normalizeWord('hi')).toBeNull();
-    expect(normalizeWord('abc123')).toBeNull();
-    expect(normalizeWord('hello!')).toBeNull();
+    expect(normalizeWord('hi', 'easy')).toBeNull();
+    expect(normalizeWord('abc123', 'easy')).toBeNull();
+    expect(normalizeWord('hello!', 'easy')).toBeNull();
+  });
+
+  test('rejects words outside the selected difficulty band', () => {
+    expect(normalizeWord('apple', 'medium')).toBeNull();
+    expect(normalizeWord('encyclopedia', 'hard')).toBe('ENCYCLOPEDIA');
+    expect(normalizeWord('encyclopedia', 'medium')).toBeNull();
   });
 
   test('extracts the first usable dictionary definition', () => {
@@ -60,7 +66,7 @@ describe('wordService', () => {
         },
       ]));
 
-    await expect(getPlayableWordWithHint(fetchMock)).resolves.toEqual({
+    await expect(getPlayableWordWithHint('easy', fetchMock)).resolves.toEqual({
       word: 'APPLE',
       hint: 'A fruit that grows on trees.',
       source: 'api',
@@ -71,10 +77,12 @@ describe('wordService', () => {
 
   test('falls back to local words when the API keeps failing', async () => {
     const fetchMock = vi.fn().mockRejectedValue(new Error('network down'));
-    const round = await getPlayableWordWithHint(fetchMock);
+    const round = await getPlayableWordWithHint('hard', fetchMock);
 
     expect(round.source).toBe('local');
     expect(round.word).toMatch(/^[A-Z ]+$/);
+    expect(round.word.replace(/ /g, '').length).toBeGreaterThanOrEqual(9);
+    expect(round.word.replace(/ /g, '').length).toBeLessThanOrEqual(12);
     expect(round.hint).toEqual(expect.any(String));
     expect(round.error).toBe('network down');
   });

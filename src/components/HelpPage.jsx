@@ -2,11 +2,13 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Button from '../utils/Button';
+import { DIFFICULTY_CONFIG } from '../config/difficulty';
 
 function HelpPage() {
   const navigate = useNavigate();
   const { status } = useSelector((state) => state.hangman);
   const isPlaying = status === "Playing";
+  const difficultyRows = Object.values(DIFFICULTY_CONFIG);
 
   const handleContinue = () => {
     navigate('/game');
@@ -43,7 +45,7 @@ function HelpPage() {
             </div>
             <p className="text-slate-300 leading-relaxed">
               Guess the word letter by letter. Incorrect guesses will add a part to the hangman figure.
-              <span className="text-red-400 font-semibold ml-1">6 incorrect guesses</span> result in losing the game.
+              <span className="text-red-400 font-semibold ml-1">Difficulty changes how many mistakes you can make</span> before the game ends.
             </p>
           </div>
 
@@ -71,6 +73,20 @@ function HelpPage() {
                 <kbd className="px-2 py-1 bg-slate-800 rounded text-xs font-mono text-slate-400">F5</kbd>
               </li>
             </ul>
+          </div>
+
+          <div className="backdrop-blur-md bg-slate-900/40 border border-white/10 rounded-2xl p-6 shadow-xl hover:border-cyan-500/30 transition-colors">
+            <h3 className="text-xl font-bold text-cyan-400 mb-4">Difficulty Levels</h3>
+            <div className="space-y-3">
+              {difficultyRows.map((config) => (
+                <div key={config.label} className="flex items-center justify-between border-b border-white/5 pb-2 text-sm">
+                  <span className="font-semibold text-white">{config.label}</span>
+                  <span className="text-slate-400">
+                    {config.minLength}-{config.maxLength} letters, {config.maxIncorrectGuesses} mistakes
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Hint System */}
