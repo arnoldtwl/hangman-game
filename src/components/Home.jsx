@@ -5,17 +5,20 @@ import HangmanFigure from './HangmanFigure';
 import Button from '../utils/Button';
 import { Link, useNavigate } from 'react-router-dom';
 import { DIFFICULTY_CONFIG } from '../config/difficulty';
+import { useAudio } from '../audio/AudioProvider';
 
 const HomePage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { isLoadingRound, difficulty, maxIncorrectGuesses } = useSelector((state) => state.hangman);
+    const { markInteracted } = useAudio();
 
     useEffect(() => {
         dispatch(setNotStarted());
     }, [dispatch]);
 
     const handlePlay = () => {
+        markInteracted();
         dispatch(resetGame());
         startTransition(() => {
             navigate('/game');

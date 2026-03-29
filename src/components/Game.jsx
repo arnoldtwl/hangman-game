@@ -8,6 +8,7 @@ import WordToGuess from './WordToGuess';
 import Scoreboard from './Scoreboard';
 import GameControls from './GameControls';
 import { DIFFICULTY_CONFIG } from '../config/difficulty';
+import { useAudio } from '../audio/AudioProvider';
 
 const Game = () => {
     const dispatch = useDispatch();
@@ -19,24 +20,33 @@ const Game = () => {
         status,
         showHint,
         hint,
+        hintsUsed,
         isLoadingRound,
         roundSource,
         difficulty,
         maxIncorrectGuesses,
     } = useSelector((state) => state.hangman);
     const hiddenInput = useRef(null);
+    const previousCorrectGuessesCount = useRef(correctGuesses.length);
+    const previousIncorrectGuessesCount = useRef(incorrectGuesses.length);
+    const previousHintsUsed = useRef(hintsUsed);
+    const previousStatus = useRef(status);
+    const { markInteracted, playSound } = useAudio();
 
     const handleGuess = (letter) => {
         if (status === "Playing" && !isLoadingRound) {
+            markInteracted();
             dispatch(makeGuess(letter));
         }
     };
 
     const handleHint = () => {
+        markInteracted();
         dispatch(revealHint());
     };
 
     const handleReset = () => {
+        markInteracted();
         dispatch(restartGame());
     };
 
@@ -45,6 +55,7 @@ const Game = () => {
     };
 
     const handlePlay = () => {
+        markInteracted();
         dispatch(restartGame());
     };
 
@@ -100,6 +111,39 @@ const Game = () => {
             dispatch(gameWon());
         }
     }, [correctGuesses, incorrectGuesses, word, dispatch, isLoadingRound, maxIncorrectGuesses]);
+
+    useEffect(() => {
+        if (isLoadingRound) {
+            return;
+        }
+
+        const currentCorrectGuessesCount = correctGuesses.length;
+        const currentIncorrectGuessesCount = incorrectGuesses.length;
+
+        if (
+            currentCorrectGuessesCount > previousCorrectGuessesCount.current &&
+            hintsUsed === previousHintsUsed.current
+        ) {
+            playSound('correct');
+        }
+
+        if (currentIncorrectGuessesCount > previousIncorrectGuessesCount.current) {
+            playSound('incorrect');
+        }
+
+        if (status !== previousStatus.current) {
+            if (status === 'You have won!') {
+                playSound('win');
+            } else if (status === 'You have lost!') {
+                playSound('lose');
+            }
+        }
+
+        previousCorrectGuessesCount.current = currentCorrectGuessesCount;
+        previousIncorrectGuessesCount.current = currentIncorrectGuessesCount;
+        previousHintsUsed.current = hintsUsed;
+        previousStatus.current = status;
+    }, [correctGuesses.length, hintsUsed, incorrectGuesses.length, isLoadingRound, playSound, status]);
 
     return (
         <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-x-hidden relative">

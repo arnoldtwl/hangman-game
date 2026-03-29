@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 import App from './App';
 import { createAppStore } from './store/store';
+import { SOUND_STORAGE_KEY } from './audio/AudioProvider';
 
 function createJsonResponse(body, ok = true, status = 200) {
   return {
@@ -60,6 +61,7 @@ test('renders difficulty choices, starts a medium round, and displays the defini
   expect(screen.getByRole('button', { name: /easy/i })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: /medium/i })).toBeInTheDocument();
   expect(screen.getByRole('button', { name: /hard/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /mute sound effects/i })).toBeInTheDocument();
   expect(screen.getByText(/6 mistakes/i)).toBeInTheDocument();
 
   await user.click(screen.getByRole('button', { name: /play now/i }));
@@ -76,10 +78,12 @@ test('renders difficulty choices, starts a medium round, and displays the defini
   expect(screen.getAllByText(/Medium/i).length).toBeGreaterThan(0);
   expect(screen.getByText(/6 chances left/i)).toBeInTheDocument();
 
+  await user.click(screen.getByRole('button', { name: /^B$/i }));
   await user.click(screen.getByRole('button', { name: /hint/i }));
 
   expect(await screen.findByText(/Definition Hint/i)).toBeInTheDocument();
   expect(screen.getByText(/A long curved fruit\./i)).toBeInTheDocument();
+  expect(window.HTMLMediaElement.prototype.play).toHaveBeenCalled();
 });
 
 test('lets players switch difficulty before starting and updates the allowed mistakes copy', async () => {
@@ -188,4 +192,69 @@ test('easy mode uses two extra guesses before the first two figure parts appear'
 
   await user.click(screen.getByRole('button', { name: /^F$/i }));
   expect(screen.getByTestId('hangman-body')).toBeInTheDocument();
+});
+
+test('mute toggle persists across remounts', async () => {
+  const user = userEvent.setup();
+  const firstStore = createAppStore();
+  const { unmount } = render(
+    <Provider store={firstStore}>
+      <App />
+    </Provider>,
+  );
+
+  await user.click(screen.getByRole('button', { name: /mute sound effects/i }));
+
+  expect(window.localStorage.getItem(SOUND_STORAGE_KEY)).toBe('true');
+  expect(screen.getByRole('button', { name: /unmute sound effects/i })).toBeInTheDocument();
+
+  unmount();
+
+  const secondStore = createAppStore();
+  render(
+    <Provider store={secondStore}>
+      <App />
+    </Provider>,
+  );
+
+  expect(screen.getByRole('button', { name: /unmute sound effects/i })).toBeInTheDocument();
+});
+
+test('muted state suppresses gameplay audio', async () => {
+  const store = createAppStore();
+  const user = userEvent.setup();
+
+  global.fetch = vi.fn((url) => {
+    if (url.includes('random-word-api')) {
+      return Promise.resolve(createJsonResponse(['banana']));
+    }
+
+    if (url.includes('/entries/en/banana')) {
+      return Promise.resolve(createJsonResponse([
+        {
+          meanings: [
+            {
+              definitions: [{ definition: 'A long curved fruit.' }],
+            },
+          ],
+        },
+      ]));
+    }
+
+    return Promise.reject(new Error(`Unexpected URL: ${url}`));
+  });
+
+  render(
+    <Provider store={store}>
+      <App />
+    </Provider>,
+  );
+
+  await user.click(screen.getByRole('button', { name: /mute sound effects/i }));
+  await user.click(screen.getByRole('button', { name: /play now/i }));
+  await screen.findByText(/6 chances left/i);
+
+  await user.click(screen.getByRole('button', { name: /^B$/i }));
+
+  expect(window.HTMLMediaElement.prototype.play).not.toHaveBeenCalled();
 });
