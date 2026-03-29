@@ -1,23 +1,60 @@
-import { configureStore, createSlice } from "@reduxjs/toolkit";
+import { configureStore, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getRandomWordWithHints } from "../utils/utils";
+import { getPlayableWordWithHint } from "../services/wordService";
 
-const randomWordWithHint = getRandomWordWithHints();
+const fallbackWordWithHint = getRandomWordWithHints();
+
+const createRoundState = ({ keepPoints = false } = {}) => ({
+    word: fallbackWordWithHint.word,
+    hint: fallbackWordWithHint.hint,
+    correctGuesses: [],
+    incorrectGuesses: [],
+    status: "Playing",
+    showHint: false,
+    hintsUsed: 0,
+    hintPenalty: 0,
+    streak: 0,
+    isLoadingRound: true,
+    roundSource: null,
+    roundError: null,
+    ...(keepPoints ? {} : { points: 0 }),
+});
+
+export const resetGame = createAsyncThunk("hangman/resetGame", async () => {
+    return getPlayableWordWithHint();
+});
+
+export const restartGame = createAsyncThunk(
+    "hangman/restartGame",
+    async (_, { getState }) => {
+        const { lastGameWon } = getState().hangman;
+        const round = await getPlayableWordWithHint();
+
+        return {
+            ...round,
+            keepPoints: lastGameWon,
+        };
+    },
+);
 
 const initialState = {
-    word: randomWordWithHint.word,
-    hint: randomWordWithHint.hint,
+    word: fallbackWordWithHint.word,
+    hint: fallbackWordWithHint.hint,
     correctGuesses: [],
     incorrectGuesses: [],
     status: "Not Started",
     showHelp: false,
     showHint: false,
     hintsUsed: 0,
-    hintPenalty: 0, // New state to track accumulated penalty
+    hintPenalty: 0,
     maxHints: 3,
     points: 0,
     streak: 0,
     highScore: 0,
     lastGameWon: false,
+    isLoadingRound: false,
+    roundSource: null,
+    roundError: null,
 };
 
 const hangmanSlice = createSlice({
@@ -53,40 +90,12 @@ const hangmanSlice = createSlice({
                 state.points -= 5;
             }
         },
-        restartGame: (state) => {
-            const newRandomWordWithHint = getRandomWordWithHints();
-            state.word = newRandomWordWithHint.word;
-            state.hint = newRandomWordWithHint.hint;
-            state.correctGuesses = [];
-            state.incorrectGuesses = [];
-            state.status = "Playing";
-            state.showHint = false;
-            state.hintsUsed = 0;
-            state.hintPenalty = 0; // Reset penalty
-            state.streak = 0;
-            if (!state.lastGameWon) {
-                state.points = 0;
-            }
-        },
-        resetGame: (state) => {
-            const { word, hint } = getRandomWordWithHints();
-            return {
-                ...state,
-                word,
-                hint,
-                correctGuesses: [],
-                incorrectGuesses: [],
-                status: 'Playing',
-                points: 0,
-                hintsUsed: 0,
-                hintPenalty: 0, // Reset penalty
-                showHint: false,
-                highScore: state.highScore,
-            };
-        },
         setNotStarted: (state) => {
             state.status = "Not Started";
             state.points = 0;
+            state.isLoadingRound = false;
+            state.roundSource = null;
+            state.roundError = null;
         },
         toggleHelp: (state) => {
             state.showHelp = !state.showHelp;
@@ -118,8 +127,6 @@ const hangmanSlice = createSlice({
         revealHint: (state) => {
             const unrevealedLetters = state.word.split('').filter(letter => !state.correctGuesses.includes(letter) && letter !== ' ');
             if (unrevealedLetters.length > 0) {
-                // Calculate cost: 5 * (hintsUsed + 1)
-                // 1st hint: 5, 2nd: 10, 3rd: 15...
                 const currentHintCost = 5 * (state.hintsUsed + 1);
 
                 const hintLetter = unrevealedLetters[Math.floor(Math.random() * unrevealedLetters.length)];
@@ -128,16 +135,84 @@ const hangmanSlice = createSlice({
                 state.hintsUsed += 1;
                 state.hintPenalty += currentHintCost;
             }
+
+            state.showHint = true;
         },
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(resetGame.pending, (state) => {
+                Object.assign(state, {
+                    ...createRoundState(),
+                    highScore: state.highScore,
+                    lastGameWon: false,
+                });
+            })
+            .addCase(resetGame.fulfilled, (state, action) => {
+                Object.assign(state, {
+                    ...state,
+                    word: action.payload.word,
+                    hint: action.payload.hint,
+                    isLoadingRound: false,
+                    roundSource: action.payload.source,
+                    roundError: action.payload.error ?? null,
+                });
+            })
+            .addCase(resetGame.rejected, (state, action) => {
+                Object.assign(state, {
+                    ...createRoundState(),
+                    word: fallbackWordWithHint.word,
+                    hint: fallbackWordWithHint.hint,
+                    isLoadingRound: false,
+                    roundSource: "local",
+                    roundError: action.error.message ?? "Unable to start a new round",
+                    highScore: state.highScore,
+                    lastGameWon: false,
+                });
+            })
+            .addCase(restartGame.pending, (state) => {
+                Object.assign(state, {
+                    ...createRoundState({ keepPoints: state.lastGameWon }),
+                    points: state.lastGameWon ? state.points : 0,
+                    highScore: state.highScore,
+                    lastGameWon: state.lastGameWon,
+                });
+            })
+            .addCase(restartGame.fulfilled, (state, action) => {
+                Object.assign(state, {
+                    ...state,
+                    word: action.payload.word,
+                    hint: action.payload.hint,
+                    points: action.payload.keepPoints ? state.points : 0,
+                    isLoadingRound: false,
+                    roundSource: action.payload.source,
+                    roundError: action.payload.error ?? null,
+                });
+            })
+            .addCase(restartGame.rejected, (state, action) => {
+                Object.assign(state, {
+                    ...createRoundState({ keepPoints: state.lastGameWon }),
+                    word: fallbackWordWithHint.word,
+                    hint: fallbackWordWithHint.hint,
+                    points: state.lastGameWon ? state.points : 0,
+                    isLoadingRound: false,
+                    roundSource: "local",
+                    roundError: action.error.message ?? "Unable to restart the round",
+                    highScore: state.highScore,
+                    lastGameWon: state.lastGameWon,
+                });
+            });
     },
 });
 
-export const { makeGuess, restartGame, resetGame, setNotStarted, toggleHelp, gameWon, gameLost, toggleHint, revealHint } = hangmanSlice.actions;
+export const { makeGuess, setNotStarted, toggleHelp, gameWon, gameLost, toggleHint, revealHint } = hangmanSlice.actions;
 
-const store = configureStore({
+export const createAppStore = () => configureStore({
     reducer: {
         hangman: hangmanSlice.reducer,
     },
 });
+
+const store = createAppStore();
 
 export default store;

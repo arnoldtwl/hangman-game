@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Button from '../utils/Button';
 
-const GameControls = ({ onHint, onReset }) => {
+const GameControls = ({ onHint, onReset, disabled = false }) => {
   const navigate = useNavigate();
   const { hintsUsed } = useSelector((state) => state.hangman);
 
@@ -11,6 +11,7 @@ const GameControls = ({ onHint, onReset }) => {
     <div className="flex flex-wrap justify-center gap-4">
       <Button
         onClick={() => navigate('/help')}
+        disabled={disabled}
         className="px-6 py-2 rounded-lg font-semibold text-white bg-slate-700 hover:bg-slate-600 transition-colors shadow-lg shadow-slate-900/20"
         aria-label="Help"
       >
@@ -19,6 +20,7 @@ const GameControls = ({ onHint, onReset }) => {
 
       <button
         onClick={onHint}
+        disabled={disabled}
         className="flex-1 bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-yellow-500/20 transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2"
         aria-label="Hint"
       >
@@ -30,6 +32,7 @@ const GameControls = ({ onHint, onReset }) => {
 
       <Button
         onClick={onReset}
+        disabled={disabled}
         className="px-6 py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 transition-all shadow-lg shadow-red-500/20"
         aria-label="Reset"
       >

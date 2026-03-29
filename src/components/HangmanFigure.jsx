@@ -24,7 +24,7 @@ function HangmanFigure({ onClick }) {
     <div
       className={`flex justify-center mt-4 relative transition-all duration-300 pointer-events-auto bg-transparent ${status === 'Playing' ? 'cursor-pointer hover:scale-105 active:scale-95' : ''}`}
       onClick={status === 'Playing' ? onClick : undefined}
-      title={status === 'Playing' ? "Click for a riddle hint!" : ""}
+      title={status === 'Playing' ? "Click for a definition hint!" : ""}
     >
       {/* Glow effect background */}
       <div className="absolute inset-0 bg-cyan-500/5 blur-3xl rounded-full transform scale-150" />

@@ -84,7 +84,7 @@ function HelpPage() {
             <ul className="space-y-3 text-slate-300">
               <li className="flex items-start gap-3">
                 <span className="w-2 h-2 rounded-full bg-yellow-500 mt-2" />
-                <span>Hints reveal one random un-guessed letter.</span>
+                <span>Hints reveal one random un-guessed letter and show a dictionary definition.</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="w-2 h-2 rounded-full bg-yellow-500 mt-2" />

@@ -11,11 +11,20 @@ import GameControls from './GameControls';
 const Game = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { word, correctGuesses, incorrectGuesses, status, showHint, hint } = useSelector((state) => state.hangman);
+    const {
+        word,
+        correctGuesses,
+        incorrectGuesses,
+        status,
+        showHint,
+        hint,
+        isLoadingRound,
+        roundSource,
+    } = useSelector((state) => state.hangman);
     const hiddenInput = useRef(null);
 
     const handleGuess = (letter) => {
-        if (status === "Playing") {
+        if (status === "Playing" && !isLoadingRound) {
             dispatch(makeGuess(letter));
         }
     };
@@ -57,7 +66,7 @@ const Game = () => {
             return;
         }
 
-        if (status === "Playing" && /^[A-Z]$/.test(key)) {
+        if (status === "Playing" && !isLoadingRound && /^[A-Z]$/.test(key)) {
             handleGuess(key);
         }
     };
@@ -78,12 +87,16 @@ const Game = () => {
     }, [status, navigate]); // Added navigate dependency
 
     useEffect(() => {
+        if (isLoadingRound) {
+            return;
+        }
+
         if (incorrectGuesses.length === 6) {
             dispatch(gameLost());
         } else if (word.split("").every((letter) => correctGuesses.includes(letter) || letter === " ")) {
             dispatch(gameWon());
         }
-    }, [correctGuesses, incorrectGuesses, word, dispatch]);
+    }, [correctGuesses, incorrectGuesses, word, dispatch, isLoadingRound]);
 
     return (
         <div className="min-h-screen w-full bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-x-hidden relative">
@@ -109,17 +122,31 @@ const Game = () => {
                             </div>
 
                             <div className="w-full flex flex-col items-center gap-4">
-                                <WordToGuess />
+                                {isLoadingRound ? (
+                                    <div className="w-full max-w-2xl rounded-2xl border border-cyan-500/20 bg-cyan-500/5 px-6 py-8 text-center shadow-lg shadow-cyan-500/10">
+                                        <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-cyan-500/20 border-t-cyan-400" />
+                                        <p className="text-lg font-semibold text-cyan-100">Preparing your next word...</p>
+                                        <p className="mt-2 text-sm text-slate-400">Fetching a random word and dictionary definition.</p>
+                                    </div>
+                                ) : (
+                                    <WordToGuess />
+                                )}
 
-                                {showHint && (
+                                {showHint && !isLoadingRound && (
                                     <div className="animate-fade-in px-6 py-3 bg-cyan-500/10 border border-cyan-500/20 rounded-xl text-cyan-100 text-sm lg:text-base font-medium flex items-center gap-3 backdrop-blur-sm shadow-lg shadow-cyan-500/5 max-w-2xl text-center">
                                         <div className="bg-cyan-500/20 p-2 rounded-lg">
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-cyan-400" viewBox="0 0 20 20" fill="currentColor">
                                                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                                             </svg>
                                         </div>
-                                        <span><strong className="text-cyan-400 uppercase tracking-wider text-xs block mb-1">Riddle Hint</strong> {hint}</span>
+                                        <span><strong className="text-cyan-400 uppercase tracking-wider text-xs block mb-1">Definition Hint</strong> {hint}</span>
                                     </div>
+                                )}
+
+                                {roundSource === "local" && !isLoadingRound && (
+                                    <p className="text-xs uppercase tracking-[0.2em] text-amber-300/80">
+                                        Local fallback round active
+                                    </p>
                                 )}
                             </div>
                         </div>
@@ -147,10 +174,11 @@ const Game = () => {
                                     <Keyboard
                                         onGuess={handleGuess}
                                         guessedLetters={[...correctGuesses, ...incorrectGuesses]}
+                                        disabled={isLoadingRound}
                                     />
 
                                     <div className="border-t border-white/5 pt-4">
-                                        <GameControls onHint={handleHint} onReset={handleReset} />
+                                        <GameControls onHint={handleHint} onReset={handleReset} disabled={isLoadingRound} />
                                     </div>
                                 </div>
                             </>

@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { startTransition, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { setNotStarted, resetGame } from '../store/store';
 import HangmanFigure from './HangmanFigure';
 import Button from '../utils/Button';
@@ -8,6 +8,7 @@ import { Link, useNavigate } from 'react-router-dom';
 const HomePage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const { isLoadingRound } = useSelector((state) => state.hangman);
 
     useEffect(() => {
         dispatch(setNotStarted());
@@ -15,7 +16,9 @@ const HomePage = () => {
 
     const handlePlay = () => {
         dispatch(resetGame());
-        navigate('/game');
+        startTransition(() => {
+            navigate('/game');
+        });
     };
 
     return (
@@ -50,17 +53,26 @@ const HomePage = () => {
                     <div className="pt-4 flex flex-col items-center gap-6">
                         <Button
                             onClick={handlePlay}
+                            disabled={isLoadingRound}
                             className="group relative px-12 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl font-bold text-xl shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-105 transition-all duration-300 overflow-hidden"
                         >
                             <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                             <span className="relative flex items-center gap-3">
-                                PLAY NOW
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                {isLoadingRound ? 'LOADING ROUND...' : 'PLAY NOW'}
+                                {!isLoadingRound && (
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                )}
                             </span>
                         </Button>
+
+                        {isLoadingRound && (
+                            <p className="text-sm text-cyan-300 tracking-wide">
+                                Fetching a fresh word and dictionary hint...
+                            </p>
+                        )}
 
                         <Link
                             to="/help"
