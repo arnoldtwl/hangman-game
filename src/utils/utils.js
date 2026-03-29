@@ -1,3 +1,5 @@
+import { getDifficultyConfig } from "../config/difficulty";
+
 const categories = {
   animals: [
     { word: "ELEPHANT", hints: [
@@ -435,7 +437,7 @@ const categories = {
  * - Supports both legacy `hint: string` and new `hints: string[]`.
  * - Always returns a single `hint` string (randomly chosen if `hints` exists).
  */
-export function getRandomWordWithHints(category) {
+export function getRandomWordWithHints(category, difficulty) {
   let wordsWithHints;
   if (category && category !== "all categories") {
     wordsWithHints = categories[category];
@@ -443,8 +445,15 @@ export function getRandomWordWithHints(category) {
     wordsWithHints = [].concat(...Object.values(categories));
   }
 
-  const randomIndex = Math.floor(Math.random() * wordsWithHints.length);
-  const picked = wordsWithHints[randomIndex];
+  const { minLength, maxLength } = getDifficultyConfig(difficulty);
+  const difficultyMatchedWords = wordsWithHints.filter(({ word }) => {
+    const normalizedLength = word.replace(/ /g, "").length;
+    return normalizedLength >= minLength && normalizedLength <= maxLength;
+  });
+
+  const candidateWords = difficultyMatchedWords.length ? difficultyMatchedWords : wordsWithHints;
+  const randomIndex = Math.floor(Math.random() * candidateWords.length);
+  const picked = candidateWords[randomIndex];
 
   // Pick a random hint if multiple exist
   const hintPool = Array.isArray(picked.hints) && picked.hints.length

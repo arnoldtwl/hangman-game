@@ -6,7 +6,7 @@ const KeyboardButton = ({ onClick, children, className, disabled, ...props }) =>
     <StyledWrapper>
       <button
         onClick={onClick}
-        className={`base-button ${className}`}
+        className={`base-button focus-ring ${className}`}
         disabled={disabled}
         {...props}
       >
@@ -31,8 +31,6 @@ const StyledWrapper = styled.div`
     overflow: hidden;
     display: inline-block;
     margin: 8px;
-    outline: none;
-
     @media (min-width: 768px) {
       padding: 12px 24px;
       font-size: 16px;

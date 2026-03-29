@@ -1,19 +1,29 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Button from '../utils/Button';
+import { DIFFICULTY_CONFIG } from '../config/difficulty';
 
 function HelpPage() {
   const navigate = useNavigate();
   const { status } = useSelector((state) => state.hangman);
   const isPlaying = status === "Playing";
+  const difficultyRows = Object.values(DIFFICULTY_CONFIG);
+  const headingRef = useRef(null);
+
+  useEffect(() => {
+    headingRef.current?.focus();
+  }, []);
 
   const handleContinue = () => {
     navigate('/game');
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-x-hidden relative">
+    <section
+      className="min-h-screen flex flex-col items-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-x-hidden relative"
+      aria-labelledby="help-page-title"
+    >
       {/* Background elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/10 rounded-full blur-[100px]" />
@@ -24,10 +34,15 @@ function HelpPage() {
 
       <div className="relative z-10 w-full max-w-4xl mx-auto px-4 pt-24 pb-12 animate-fade-in-up">
         <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-black mb-4 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 text-transparent bg-clip-text drop-shadow-sm">
+          <h1
+            id="help-page-title"
+            ref={headingRef}
+            tabIndex={-1}
+            className="text-4xl md:text-5xl font-black mb-4 bg-gradient-to-r from-cyan-300 via-blue-400 to-fuchsia-400 text-transparent bg-clip-text drop-shadow-sm"
+          >
             How to Play
-          </h2>
-          <p className="text-slate-400 text-lg">Master the rules and become a Hangman champion</p>
+          </h1>
+          <p className="text-slate-200 text-lg">Master the rules and become a Hangman champion</p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
@@ -41,9 +56,9 @@ function HelpPage() {
               </div>
               <h3 className="text-xl font-bold text-white">Basic Rules</h3>
             </div>
-            <p className="text-slate-300 leading-relaxed">
+            <p className="text-slate-200 leading-relaxed">
               Guess the word letter by letter. Incorrect guesses will add a part to the hangman figure.
-              <span className="text-red-400 font-semibold ml-1">6 incorrect guesses</span> result in losing the game.
+              <span className="text-red-400 font-semibold ml-1">Difficulty changes how many mistakes you can make</span> before the game ends.
             </p>
           </div>
 
@@ -57,20 +72,34 @@ function HelpPage() {
               </div>
               <h3 className="text-xl font-bold text-white">Controls</h3>
             </div>
-            <ul className="space-y-3 text-slate-300">
+            <ul className="space-y-3 text-slate-200">
               <li className="flex items-center justify-between border-b border-white/5 pb-2">
                 <span>Open Help</span>
-                <kbd className="px-2 py-1 bg-slate-800 rounded text-xs font-mono text-slate-400">F1</kbd>
+                <kbd className="px-2 py-1 bg-slate-800 rounded text-xs font-mono text-slate-200">F1</kbd>
               </li>
               <li className="flex items-center justify-between border-b border-white/5 pb-2">
                 <span>Reveal Hint</span>
-                <kbd className="px-2 py-1 bg-slate-800 rounded text-xs font-mono text-slate-400">F2</kbd>
+                <kbd className="px-2 py-1 bg-slate-800 rounded text-xs font-mono text-slate-200">F2</kbd>
               </li>
               <li className="flex items-center justify-between">
                 <span>Restart Game</span>
-                <kbd className="px-2 py-1 bg-slate-800 rounded text-xs font-mono text-slate-400">F5</kbd>
+                <kbd className="px-2 py-1 bg-slate-800 rounded text-xs font-mono text-slate-200">F5</kbd>
               </li>
             </ul>
+          </div>
+
+          <div className="backdrop-blur-md bg-slate-900/40 border border-white/10 rounded-2xl p-6 shadow-xl hover:border-cyan-500/30 transition-colors">
+            <h3 className="text-xl font-bold text-cyan-400 mb-4">Difficulty Levels</h3>
+            <div className="space-y-3">
+              {difficultyRows.map((config) => (
+                <div key={config.label} className="flex items-center justify-between border-b border-white/5 pb-2 text-sm">
+                  <span className="font-semibold text-white">{config.label}</span>
+                  <span className="text-slate-200">
+                    {config.minLength}-{config.maxLength} letters, {config.maxIncorrectGuesses} mistakes
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Hint System */}
@@ -81,16 +110,16 @@ function HelpPage() {
               </svg>
               Hint System
             </h3>
-            <ul className="space-y-3 text-slate-300">
+            <ul className="space-y-3 text-slate-200">
               <li className="flex items-start gap-3">
                 <span className="w-2 h-2 rounded-full bg-yellow-500 mt-2" />
-                <span>Hints reveal one random un-guessed letter.</span>
+                <span>Hints reveal one random un-guessed letter and show a dictionary definition.</span>
               </li>
               <li className="flex items-start gap-3">
                 <span className="w-2 h-2 rounded-full bg-yellow-500 mt-2" />
                 <span>Hints have a deferred cost deducted upon winning:</span>
               </li>
-              <li className="ml-8 text-sm text-slate-400">
+              <li className="ml-8 text-sm text-slate-200">
                 • 1st Hint: -5 points<br />
                 • 2nd Hint: -10 points<br />
                 • 3rd Hint: -15 points
@@ -111,7 +140,7 @@ function HelpPage() {
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <h4 className="font-semibold text-slate-200 mb-2">Points</h4>
-                <ul className="space-y-1 text-slate-400">
+                <ul className="space-y-1 text-slate-200">
                   <li>Correct Letter: +1-3</li>
                   <li>Complete Word: +50-200</li>
                   <li>Survival Bonus: +10</li>
@@ -120,7 +149,7 @@ function HelpPage() {
               </div>
               <div>
                 <h4 className="font-semibold text-slate-200 mb-2">Streak</h4>
-                <ul className="space-y-1 text-slate-400">
+                <ul className="space-y-1 text-slate-200">
                   <li>1-2 Correct: 1x</li>
                   <li>3-4 Correct: 2x</li>
                   <li>5-6 Correct: 3x</li>
@@ -135,21 +164,21 @@ function HelpPage() {
           {isPlaying ? (
             <Button
               onClick={handleContinue}
-              className="px-8 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg shadow-green-500/20 transform hover:scale-105 transition-all duration-200"
+              className="focus-ring px-8 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg shadow-green-500/20 transform hover:scale-105 transition-all duration-200"
             >
               Continue Game
             </Button>
           ) : (
             <Button
               onClick={() => navigate('/')}
-              className="px-8 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 shadow-lg shadow-cyan-500/20 transform hover:scale-105 transition-all duration-200"
+              className="focus-ring px-8 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 shadow-lg shadow-cyan-500/20 transform hover:scale-105 transition-all duration-200"
             >
               Back to Home
             </Button>
           )}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 
